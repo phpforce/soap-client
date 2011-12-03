@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="ddeboer_salesforce_client.soap.client"
+            factory-service="ddeboer_salesforce_client.soap.client.builder"
+            factory-method="build"
+            class="BeSimple\SoapClient\SoapClient">
+        </service>
+
+        <service id="ddeboer_salesforce_client.soap.converter.collection"
+                 class="BeSimple\SoapCommon\Converter\TypeConverterCollection">
+        </service>
+
+        <service id="ddeboer_salesforce_client" class="Ddeboer\Salesforce\ClientBundle\Client">
+            <argument type="service" id="ddeboer_salesforce_client.soap.client" />
+            <argument>%ddeboer_salesforce_client.username%</argument>
+            <argument>%ddeboer_salesforce_client.password%</argument>
+            <argument>%ddeboer_salesforce_client.token%</argument>
+            <call method="setEventDispatcher">
+                <argument type="service" id="event_dispatcher" />
+            </call>
+
+        </service>
+
+        <service id="ddeboer_salesforce_client.listener.log_transaction" class="Ddeboer\Salesforce\ClientBundle\EventListener\LogTransactionListener">
+            <tag name="kernel.event_listener" event="salesforce.client.response" />
+            <tag name="kernel.event_listener" event="salesforce.client.error" />
+            <argument type="service" id="logger" />
+        </service>
+
+        <service id="ddeboer_salesforce_client.bulk_saver" class="Ddeboer\Salesforce\ClientBundle\BulkSaver">
+            <argument type="service" id="ddeboer_salesforce_client" />
+        </service>
+
+        <service id="ddeboer_salesforce_client.soap.converter.date_time"
+                 class="Ddeboer\Salesforce\ClientBundle\Soap\Converter\DateTimeTypeConverter">
+        </service>
+
+        <service id="ddeboer_salesforce_client.soap.converter.date"
+                 class="Ddeboer\Salesforce\ClientBundle\Soap\Converter\DateTypeConverter">
+        </service>
+    </services>
+
+</container>
