@@ -27,8 +27,9 @@
         </service>
 
         <service id="ddeboer_salesforce_client.listener.log_transaction" class="Ddeboer\Salesforce\ClientBundle\EventListener\LogTransactionListener">
-            <tag name="kernel.event_listener" event="salesforce.client.response" />
             <tag name="kernel.event_listener" event="salesforce.client.error" />
+            <tag name="kernel.event_listener" event="salesforce.client.response" />
+            <tag name="kernel.event_listener" event="salesforce.client.soap_fault" />
             <argument type="service" id="logger" />
         </service>
 

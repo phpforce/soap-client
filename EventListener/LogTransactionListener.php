@@ -19,8 +19,15 @@ class LogTransactionListener
         $this->logger->debug('[Salesforce] response:', array($event->getResponse()));
     }
 
-    public function onSalesforceClientError(Event\SoapFaultEvent $event)
+    public function onSalesforceClientSoapFault(Event\SoapFaultEvent $event)
     {
-        $this->logger->err('[Salesforce] error: ' . $event->getSoapFault()->getMessage());
+        $this->logger->err('[Salesforce] fault: ' . $event->getSoapFault()->getMessage());
+    }
+
+    public function onSalesforceClientError(Event\ErrorEvent $event)
+    {
+        $error = $event->getError();
+        $this->logger->err('[Salesforce] error: ' . $error->statusCode . ' - '
+                           . $error->message, get_object_vars($error));
     }
 }
