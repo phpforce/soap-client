@@ -180,7 +180,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     public function sort($by)
     {
         $by = ucfirst($by);
-        $array = $this->records;
+        $array = $this->queryResult->records;
         usort($array, function($a, $b) use ($by) {
             // These two ifs take care of moving empty values to the end of the
             // array instead of the beginning
