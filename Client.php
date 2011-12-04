@@ -60,7 +60,7 @@ class Client
      *
      * @var array
      */
-    protected $types;
+    protected $types = array();
 
     /**
      * Construct Salesforce SOAP client
@@ -76,7 +76,6 @@ class Client
         $this->username = $username;
         $this->password = $password;
         $this->token = $token;
-        $this->types = $this->processTypes($this->soapClient);
     }
 
     /**
@@ -95,7 +94,7 @@ class Client
     }
 
     /**
-     * Delete one or more Salesforce objects
+     * Deletes one or more records from your organization’s data
      *
      * @param array $ids    Salesforce object IDs
      * @return Response\DeleteResult[]
@@ -108,60 +107,14 @@ class Client
         ));
     }
 
+    /**
+     *
+     * @param array $objects
+     * @return type
+     */
     public function describeSObjects(array $objects)
     {
         return $this->call('describeSObjects', $objects);
-    }
-
-    /**
-     * Create a Salesforce object
-     *
-     * Converts PHP \DateTimes to their SOAP equivalents.
-     *
-     * @param mixed $object
-     * @param string $objectType
-     */
-    protected function createSObject($object, $objectType)
-    {
-        $sObject = new \stdClass();
-
-        foreach (get_object_vars($object) as $field => $value) {
-
-            // Skip read-only fields
-            // @todo Make sure all read-only fields are included
-            switch ($field) {
-                case 'SystemModstamp':
-                case 'LastActivityDate':
-                case 'LastModifiedDate':
-                case 'LastModifiedById':
-                case 'CreatedById':
-                case 'CreatedDate':
-                case 'IsDeleted':
-                    continue(2);
-            }
-
-            // Convert PHP \DateTime values to their Salesforce equivalents
-            switch ($this->getFieldType($objectType, $field)) {
-                case 'date':
-                    if ($value instanceof \DateTime) {
-                        $value  = $value->format('Y-m-d');
-                    }
-                    break;
-
-                case 'dateTime':
-                    if ($value instanceof \DateTime) {
-                        $value  = $value->format('Y-m-d\TH:i:sP');
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-            $sObject->$field = $value;
-        }
-
-        return $sObject;
     }
 
     /**
@@ -203,6 +156,7 @@ class Client
      *
      * @param string $query
      * @return RecordIterator
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_query.htm
      */
     public function query($query)
     {
@@ -235,6 +189,7 @@ class Client
      *
      * @param string $queryLocator
      * @return Response\QueryResult
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_querymore.htm
      */
     public function queryMore($queryLocator)
     {
@@ -253,11 +208,26 @@ class Client
     }
 
     /**
-     * Update Salesforce objects
+     * Executes a text search in your organization’s data
+     *
+     * @param string $searchString
+     * @return Response\SearchResult
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_search.htm
+     */
+    public function search($searchString)
+    {
+        return $this->call('search', array(
+            'searchString'  => $searchString
+        ));
+    }
+
+    /**
+     * Updates one or more existing records in your organization’s data
      *
      * @param array $objects
      * @param string $type  Object type
      * @return Response\SaveResult[]
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_update.htm
      */
     public function update(array $objects, $type)
     {
@@ -334,21 +304,28 @@ class Client
     /**
      * Check response for errors
      *
-     * @param type $result
+     * @param \stdClass $results
      * @throws \Exception       When Salesforce returned an error
      */
     protected function checkResult($results)
     {
-        foreach ($results->result as $result) {
+        foreach ($results->result as $result) {            
             if (isset($result->errors)) {
-                $errorMessage = 'Salesforce returned error for id ' . $result->id
-                                . ': ' . $result->errors[0]->message . "\n"
-                                . json_encode($result);
+                if (null !== $this->eventDispatcher) {
+                    foreach ($result->errors as $error) {
+                        $event = new Event\ErrorEvent($error);
+                        $this->eventDispatcher->dispatch(Events::clientError, $event);
+                    }
+                }
 
+                // Use first error for throwing exception
+                $error = /* @var $error Response\Error */  $result->errors[0];
+                $errorMessage = 'Salesforce returned error ' . $error->statusCode .
+                                ' for ID ' . $result->id
+                . ': ' . $error->message . "\n"
+                . json_encode($result->errors);
                 
-
-                $this->log($errorMessage, 'err');
-                throw new \Exception($errorMessage);
+                throw new \InvalidArgumentException($errorMessage);
             }
         }
     }
@@ -367,6 +344,10 @@ class Client
             $this->login($this->username, $this->password, $this->token);
         }
 
+        if (empty($this->types)) { 
+            $this->types = $this->processTypes($this->soapClient);
+        }
+
         // Prepare headers
         $this->soapClient->__setSoapHeaders($this->getSessionHeader());
 
@@ -380,7 +361,7 @@ class Client
         } catch (\SoapFault $soapFault) {
             if (null !== $this->eventDispatcher) {
                 $event = new Event\SoapFaultEvent($soapFault);
-                $this->eventDispatcher->dispatch(Events::clientError, $event);
+                $this->eventDispatcher->dispatch(Events::clientSoapFault, $event);
             }
 
             throw $soapFault;
@@ -399,11 +380,12 @@ class Client
     }
 
     /**
-     * Log in to Salesforce
+     * Logs in to the login server and starts a client session
      *
      * @param string $username  Salesforce username
      * @param string $password  Salesforce password
      * @param string $token     Salesforce security token
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_login.htm
      */
     public function login($username, $password, $token)
     {
@@ -530,21 +512,10 @@ class Client
     }
 
     /**
-     * Executes a text search in your organization’s data
-     *
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_search.htm
-     */
-    public function search($searchString)
-    {
-        return $this->call('search', array(
-            'searchString'  => $searchString
-        ));
-    }
-
-    /**
      * Get user info
      * 
      * @return Response\GetUserInfoResult
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_getuserinfo.htm
      */
     public function getUserInfo()
     {
@@ -559,6 +530,58 @@ class Client
     public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
     {
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+     /**
+     * Create a Salesforce object
+     *
+     * Converts PHP \DateTimes to their SOAP equivalents.
+     *
+     * @param mixed $object
+     * @param string $objectType
+     * @return \stdClass    SObject
+     */
+    protected function createSObject($object, $objectType)
+    {
+        $sObject = new \stdClass();
+
+        foreach (get_object_vars($object) as $field => $value) {
+
+            // Skip read-only fields
+            // @todo Make sure all read-only fields are included
+            switch ($field) {
+                case 'SystemModstamp':
+                case 'LastActivityDate':
+                case 'LastModifiedDate':
+                case 'LastModifiedById':
+                case 'CreatedById':
+                case 'CreatedDate':
+                case 'IsDeleted':
+                    continue(2);
+            }
+
+            // Convert PHP \DateTime values to their Salesforce equivalents
+            switch ($this->getFieldType($objectType, $field)) {
+                case 'date':
+                    if ($value instanceof \DateTime) {
+                        $value  = $value->format('Y-m-d');
+                    }
+                    break;
+
+                case 'dateTime':
+                    if ($value instanceof \DateTime) {
+                        $value  = $value->format('Y-m-d\TH:i:sP');
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            $sObject->$field = $value;
+        }
+
+        return $sObject;
     }
 
     protected function processTypes(\SoapClient $soapClient)
