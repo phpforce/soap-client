@@ -4,6 +4,7 @@
     "description": "A Salesforce API Client",
     "keywords": [ "salesforce", "soap", "web service" ],
     "homepage": "https://github.com/ddeboer/DdeboerSalesforceClientBundle",
+    "license": "MIT",
     "authors": [
         {
             "name": "David de Boer",
