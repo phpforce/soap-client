@@ -23,6 +23,11 @@ class BulkSaver
      */
     const BULK_DELETE_LIMIT = 200;
 
+    /**
+     * Salesforce client
+     *
+     * @var Client
+     */
     private $client;
 
     private $bulkCreateRecords = array();
@@ -83,6 +88,40 @@ class BulkSaver
     }
 
     /**
+     * Flush all creates, updates and upserts
+     *
+     * @return SaveResult[]
+     */
+    public function flush()
+    {
+        $results = array();
+
+        foreach ($this->bulkCreateRecords as $type => $objects) {
+            if (count($objects) > 0) {
+                $results[] = $this->flushCreates($type);
+            }
+        }
+
+        foreach ($this->bulkUpdateRecords as $type => $objects) {
+            if (count($objects) > 0) {
+                $results[] = $this->flushUpdates($type);
+            }
+        }
+
+        foreach ($this->bulkUpsertRecords as $type => $objects) {
+            if (count($objects) > 0) {
+                $results[] = $this->flushUpserts($type);
+            }
+        }
+
+        if (count($this->bulkDeleteRecords) > 0) {
+            $results[] = $this->flushDeletes();
+        }
+
+        return $results;
+    }
+
+    /**
      * Add a record to the create queue
      *
      * @param sObject $sObject
@@ -107,7 +146,7 @@ class BulkSaver
      */
     private function addBulkDeleteRecord($record)
     {
-        if (self::BULK_DELETE_LIMIT === count($this->bulkDeleteRecordIds)) {
+        if (self::BULK_DELETE_LIMIT === count($this->bulkDeleteRecords)) {
             $this->flushDeletes();
         }
 
@@ -156,10 +195,6 @@ class BulkSaver
      */
     private function flushCreates($objectType)
     {
-        if (!isset($this->bulkCreateRecords[$objectType])) {
-            throw new \InvalidArgumentException('No objects queued for type ' . $objectType);
-        }
-
         $result = $this->client->create($this->bulkCreateRecords[$objectType], $objectType);
         $this->bulkCreateRecords[$objectType] = array();
 
@@ -173,7 +208,12 @@ class BulkSaver
      */
     private function flushDeletes()
     {
-        $result = $this->client->delete($this->bulkDeleteRecords);
+        $ids = array();
+        foreach ($this->bulkDeleteRecords as $record) {
+            $ids[] = $record->Id;
+        }
+
+        $result = $this->client->delete($ids);
         $this->bulkDeleteRecords = array();
 
         return $result;
@@ -187,10 +227,6 @@ class BulkSaver
      */
     private function flushUpdates($objectType)
     {
-        if (!isset($this->bulkUpdateRecords[$objectType])) {
-            throw new \InvalidArgumentException('No objects queued for type ' . $objectType);
-        }
-
         $result = $this->client->update($this->bulkUpdateRecords[$objectType], $objectType);
         $this->bulkUpdateRecords[$objectType] = array();
 
@@ -205,10 +241,6 @@ class BulkSaver
      */
     private function flushUpserts($objectType)
     {
-        if (!isset($this->bulkUpsertRecords[$objectType])) {
-            throw new \InvalidArgumentException('No objects queued for type ' . $objectType);
-        }
-
         $result = $this->client->upsert(
             $this->bulkUpsertMatchFields[$objectType],
             $this->bulkUpsertRecords[$objectType],
@@ -216,40 +248,6 @@ class BulkSaver
         $this->bulkUpsertRecords[$objectType] = array();
         
         return $result;
-    }
-
-    /**
-     * Flush all creates, updates and upserts
-     *
-     * @return SaveResult[]
-     */
-    public function flush()
-    {
-        $results = array();
-
-        foreach ($this->bulkCreateRecords as $type => $objects) {
-            if (count($objects) > 0) {
-                $results[] = $this->flushCreates($type);
-            }
-        }
-
-        foreach ($this->bulkUpdateRecords as $type => $objects) {
-            if (count($objects) > 0) {
-                $results[] = $this->flushUpdates($type);
-            }
-        }
-
-        foreach ($this->bulkUpsertRecords as $type => $objects) {
-            if (count($objects) > 0) {
-                $results[] = $this->flushUpserts($type);
-            }
-        }
-
-        if (count($this->bulkDeleteRecords) > 0) {
-            $results[] = $this->flushDeletes();
-        }
-
-        return $results;
     }
 
     /**

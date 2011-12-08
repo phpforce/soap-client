@@ -30,6 +30,7 @@ class Configuration implements ConfigurationInterface
                         'DeleteResult'  => 'Ddeboer\Salesforce\ClientBundle\Response\DeleteResult',
                         'Error'         => 'Ddeboer\Salesforce\ClientBundle\Response\Error',
                         'LoginResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\LoginResult',
+                        'MergeResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\MergeResult',
                         'QueryResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\QueryResult',
                         'SaveResult'    => 'Ddeboer\Salesforce\ClientBundle\Response\SaveResult',
                         'SearchResult'  => 'Ddeboer\Salesforce\ClientBundle\Response\SearchResult',

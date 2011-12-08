@@ -122,7 +122,7 @@ class Client
      * Salesforce leads, contacts or accounts
      *
      * @param array $mergeRequests  Array of merge request objects
-     *
+     * @return Response\MergeResult[]
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_merge.htm
      */
     public function merge(array $mergeRequests, $type)
@@ -134,8 +134,16 @@ class Client
                 );
             }
 
-            if (!$mergeRequest->masterRecord) {
-                throw new \InvalidArgumentException('Master record must be set');
+            if (!$mergeRequest->masterRecord || !is_object($mergeRequest->masterRecord)) {
+                throw new \InvalidArgumentException('masterRecord must be an object');
+            }
+
+            if (!$mergeRequest->masterRecord->Id) {
+                throw new \InvalidArgumentException('Id for masterRecord must be set');
+            }
+
+            if (!is_array($mergeRequest->recordToMergeIds)) {
+                throw new \InvalidArgumentException('recordToMergeIds must be an array');
             }
 
             $mergeRequest->masterRecord = new \SoapVar(

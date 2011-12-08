@@ -3,10 +3,30 @@
 namespace Ddeboer\Salesforce\ClientBundle\Tests;
 
 use Ddeboer\Salesforce\ClientBundle\Client;
+use Ddeboer\Salesforce\ClientBundle\Request;
 use Ddeboer\Salesforce\ClientBundle\Response;
 
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
+    public function testDelete()
+    {
+        $deleteResult = new Response\DeleteResult();
+        $deleteResult->id = '001M0000008tWTFIA2';
+        $deleteResult->success = true;
+
+        $response = new \stdClass();
+        $response->result = array($deleteResult);
+
+        $soapClient = $this->getSoapClient(array('delete'));
+        $soapClient->expects($this->once())
+            ->method('delete')
+            ->with(array('ids' => array('001M0000008tWTFIA2')))
+            ->will($this->returnValue($response));
+
+        $this->getClient($soapClient)->delete(array('001M0000008tWTFIA2'));
+
+    }
+
     public function testQuery()
     {
         $soapClient = $this->getSoapClient(array('query'));
@@ -77,6 +97,32 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
                 'Name'  => 'Some name'
             )
         ), 'Account');
+    }
+
+    public function testMerge()
+    {
+        $soapClient= $this->getSoapClient(array('merge'));
+
+        $mergeRequest = new Request\MergeRequest();
+        $masterRecord = new \stdClass();
+        $masterRecord->Id = '001M0000007UvSjIAK';
+        $masterRecord->Name = 'This will be the new name';
+        $mergeRequest->masterRecord = $masterRecord;
+        $mergeRequest->recordToMergeIds = array('001M0000008uw8JIAQ');
+
+        $mergeResult= new Response\MergeResult();
+        $mergeResult->id = '001M0000007UvSjIAK';
+        $mergeResult->mergedRecordIds = array('001M0000008uw8JIAQ');
+        $mergeResult->success = true;
+        $result = new \stdClass();
+        $result->result = array($mergeResult);
+        
+        $soapClient
+            ->expects($this->once())
+            ->method('merge')
+            ->will($this->returnValue($result));
+
+        $this->getClient($soapClient)->merge(array($mergeRequest), 'Account');
     }
 
     protected function getClient(\SoapClient $soapClient)
