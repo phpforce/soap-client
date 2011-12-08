@@ -15,17 +15,8 @@ class DateTimeTypeConverter extends BaseDateTimeTypeConverter
 {
     public function convertXmlToPhp($data)
     {
-        $doc = new \DOMDocument();
-        $doc->loadXML($data);
-
-        if ('' === $doc->textContent) {
-            return null;
-        }
-
-        $dateTime = new \DateTime($doc->textContent);
+        $dateTime = parent::convertXmlToPhp($data);
         $dateTime->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-
         return $dateTime;
     }
 }
-
