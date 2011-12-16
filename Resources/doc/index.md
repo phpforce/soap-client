@@ -40,9 +40,9 @@ $result = $this->container->get('ddeboer_salesforce_client')->query(
     "select Name, SystemModstamp from Account LIMIT 5");
 ```
 
-This will fetch five accounts from Salesforce and return them as a record
-iterator. You can now iterate over the results. The account’s `SystemModstamp`
-is returned as a `\DateTime` object.
+This will fetch five accounts from Salesforce and return them as a
+`RecordIterator`. You can now iterate over the results. The account’s
+`SystemModstamp` is returned as a `\DateTime` object.
 
 ```
 foreach ($results as $account) {
