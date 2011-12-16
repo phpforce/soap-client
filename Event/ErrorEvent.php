@@ -20,7 +20,7 @@ class ErrorEvent extends Event
      */
     public function __construct(Error $error)
     {
-        $this->error = $error;
+        $this->setError($error);
     }
 
     /**
@@ -38,7 +38,7 @@ class ErrorEvent extends Event
      *
      * @param Error $error
      */
-    public function setError($error)
+    public function setError(Error $error)
     {
         $this->error = $error;
     }

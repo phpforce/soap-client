@@ -27,8 +27,13 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('token')->isRequired()->end()
                 ->arrayNode('classmap')
                     ->defaultValue(array(
+                        'ChildRelationship' => 'Ddeboer\Salesforce\ClientBundle\Response\ChildRelationship',
                         'DeleteResult'  => 'Ddeboer\Salesforce\ClientBundle\Response\DeleteResult',
+                        'DescribeGlobalResult' => 'Ddeboer\Salesforce\ClientBundle\Response\DescribeGlobalResult',
+                        'DescribeGlobalSObjectResult' => 'Ddeboer\Salesforce\ClientBundle\Response\DescribeGlobalSObjectResult',
+                        'DescribeSObjectResult' => 'Ddeboer\Salesforce\ClientBundle\Response\DescribeSObjectResult',
                         'Error'         => 'Ddeboer\Salesforce\ClientBundle\Response\Error',
+                        'Field'         => 'Ddeboer\Salesforce\ClientBundle\Response\Field',
                         'LoginResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\LoginResult',
                         'MergeResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\MergeResult',
                         'QueryResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\QueryResult',

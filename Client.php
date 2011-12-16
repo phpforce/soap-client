@@ -5,6 +5,7 @@ namespace Ddeboer\Salesforce\ClientBundle;
 use Ddeboer\Salesforce\ClientBundle\Request;
 use Ddeboer\Salesforce\ClientBundle\Response;
 use Ddeboer\Salesforce\ClientBundle\Event;
+use Ddeboer\Salesforce\ClientBundle\Soap\SoapClient;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -31,7 +32,7 @@ class Client
     /**
      * PHP SOAP client for interacting with the Salesforce API
      *
-     * @var \SoapClient
+     * @var SoapClient
      */
     protected $soapClient;
 
@@ -70,12 +71,22 @@ class Client
      * @param string $password  Salesforce password
      * @param string $token     Salesforce security token
      */
-    public function __construct(\SoapClient $soapClient, $username, $password, $token)
+    public function __construct(SoapClient $soapClient, $username, $password, $token)
     {
         $this->soapClient = $soapClient;
         $this->username = $username;
         $this->password = $password;
         $this->token = $token;
+    }
+
+    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
     }
 
     /**
@@ -108,13 +119,60 @@ class Client
     }
 
     /**
-     *
-     * @param array $objects
-     * @return type
+     * Retrieves a list of available objects for your organization’s data
+
+     * @return Response\DescribeGlobalResult
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_describeglobal.htm
      */
-    public function describeSObjects(array $objects)
+    public function describeGlobal()
     {
+        return $this->call('describeGlobal');
+    }
+
+    /**
+     * describes metadata (field list and object properties) for the specified object or array of objects
+     * 
+     * @param array $objects
+     * @param boolean $cache    Whether it’s okay to fetch results from cache
+     * @return Response\DescribeSObject[]
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_describesobjects.htm
+     */
+    public function describeSObjects(array $objects, $cache = true)
+    {
+        if (true === $cache) {
+
+        }
         return $this->call('describeSObjects', $objects);
+    }
+
+    /**
+     * Get user info
+     *
+     * @return Response\GetUserInfoResult
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_getuserinfo.htm
+     */
+    public function getUserInfo()
+    {
+        return $this->call('getUserInfo');
+    }
+
+    /**
+     * Logs in to the login server and starts a client session
+     *
+     * @param string $username  Salesforce username
+     * @param string $password  Salesforce password
+     * @param string $token     Salesforce security token
+     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_login.htm
+     */
+    public function login($username, $password, $token)
+    {
+        $result = $this->soapClient->login(array(
+            'username'  => $username,
+            'password'  => $password.$token
+        ));
+
+        $this->setEndpointLocation($result->result->serverUrl);
+        $this->setSessionId($result->result->sessionId);
     }
 
     /**
@@ -317,7 +375,7 @@ class Client
      */
     protected function checkResult($results)
     {
-        foreach ($results->result as $result) {            
+        foreach ($results->result as $result) {
             if (isset($result->errors)) {
                 if (null !== $this->eventDispatcher) {
                     foreach ($result->errors as $error) {
@@ -332,7 +390,7 @@ class Client
                                 ' for ID ' . $result->id
                 . ': ' . $error->message . "\n"
                 . json_encode($result->errors);
-                
+
                 throw new \InvalidArgumentException($errorMessage);
             }
         }
@@ -347,16 +405,21 @@ class Client
      */
     protected function call($method, array $params = array())
     {
+        $this->init();
+        return $this->doCall($method, $params);
+    }
+
+    protected function init()
+    {
         // If there’s no session header yet, this means we haven’t yet logged in
         if (!$this->getSessionHeader()) {
             $this->login($this->username, $this->password, $this->token);
         }
+    }
 
-        if (empty($this->types)) { 
-            $this->types = $this->processTypes($this->soapClient);
-        }
-
-        // Prepare headers
+    protected function doCall($method, array $params = array())
+    {
+          // Prepare headers
         $this->soapClient->__setSoapHeaders($this->getSessionHeader());
 
         if (null !== $this->eventDispatcher) {
@@ -385,25 +448,6 @@ class Client
         if (isset($result->result)) {
             return $result->result;
         }
-    }
-
-    /**
-     * Logs in to the login server and starts a client session
-     *
-     * @param string $username  Salesforce username
-     * @param string $password  Salesforce password
-     * @param string $token     Salesforce security token
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_login.htm
-     */
-    public function login($username, $password, $token)
-    {
-        $result = $this->soapClient->login(array(
-            'username'  => $username,
-            'password'  => $password.$token
-        ));
-
-        $this->setEndpointLocation($result->result->serverUrl);
-        $this->setSessionId($result->result->sessionId);
     }
 
     /**
@@ -459,88 +503,6 @@ class Client
     }
 
     /**
-     * Get the SOAP type for an object’s field
-     *
-     * Note: this method does not (yet) support inherited SOAP types. For
-     * instance, in the Salesforce WSDL many objects extend sObject. This is
-     * not supported.
-     *
-     * @param string $object
-     * @param string $field
-     * @return string
-     */
-    public function getFieldType($object, $field)
-    {
-        if (isset($this->types[$object][$field])) {
-            return $this->types[$object][$field];
-        }
-    }
-
-    /**
-     * Get the types on an object
-     *
-     * @param string $object
-     * @return array
-     */
-    public function getObjectTypes($object)
-    {
-        if (isset($this->types[$object])) {
-            return $this->types[$object];
-        }
-    }
-
-    /**
-     * Get all object properties that are fields, i.e., skip the relations
-     *
-     * @param string $object
-     * @return array
-     */
-    public function getObjectFields($object)
-    {
-        if (!isset($this->types[$object])) {
-            throw new \InvalidArgumentException('Invalid object: ' . $object);
-        }
-
-        $fields = array();
-
-        foreach ($this->types[$object] as $key => $value) {
-            switch ($value) {
-                case 'string':
-                case 'ID':
-                case 'date':
-                case 'double':
-                case 'boolean':
-                case 'dateTime':
-                case 'int':
-                    $fields[] = $key;
-            }
-        }
-
-        return $fields;
-    }
-
-    /**
-     * Get user info
-     * 
-     * @return Response\GetUserInfoResult
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_getuserinfo.htm
-     */
-    public function getUserInfo()
-    {
-        return $this->call('getUserInfo');
-    }
-
-    public function getEventDispatcher()
-    {
-        return $this->eventDispatcher;
-    }
-
-    public function setEventDispatcher(EventDispatcherInterface $eventDispatcher)
-    {
-        $this->eventDispatcher = $eventDispatcher;
-    }
-
-     /**
      * Create a Salesforce object
      *
      * Converts PHP \DateTimes to their SOAP equivalents.
@@ -554,22 +516,15 @@ class Client
         $sObject = new \stdClass();
 
         foreach (get_object_vars($object) as $field => $value) {
-
-            // Skip read-only fields
-            // @todo Make sure all read-only fields are included
-            switch ($field) {
-                case 'SystemModstamp':
-                case 'LastActivityDate':
-                case 'LastModifiedDate':
-                case 'LastModifiedById':
-                case 'CreatedById':
-                case 'CreatedDate':
-                case 'IsDeleted':
-                    continue(2);
+            $type = $this->soapClient->getSoapElementType($objectType, $field);
+            if (!$type) {
+                continue;
             }
 
-            // Convert PHP \DateTime values to their Salesforce equivalents
-            switch ($this->getFieldType($objectType, $field)) {
+            // As PHP \DateTime to SOAP dateTime conversion is not done
+            // automatically with the SOAP typemap for sObjects, we do it here.
+            // TODO: also take in account the timezone difference!
+            switch ($type) {
                 case 'date':
                     if ($value instanceof \DateTime) {
                         $value  = $value->format('Y-m-d');
@@ -581,44 +536,10 @@ class Client
                         $value  = $value->format('Y-m-d\TH:i:sP');
                     }
                     break;
-
-                default:
-                    break;
             }
 
             $sObject->$field = $value;
         }
-
         return $sObject;
-    }
-
-    protected function processTypes(\SoapClient $soapClient)
-    {
-        $types = array();
-
-        $soapTypes = $soapClient->__getTypes();
-        foreach ($soapTypes as $soapType) {
-            $type = array();
-
-            $lines = explode("\n", $soapType);
-            if (!preg_match('/struct (.*) {/', $lines[0], $matches)) {
-                continue;
-            }
-            $typeName = $matches[1];
-
-            $properties = array('Id' => 'ID');
-            foreach (array_slice($lines, 1) as $line) {
-                if ($line == '}') {
-                    continue;
-                }
-
-                preg_match('/\s* (.*) (.*);/', $line, $matches);
-
-                $properties[$matches[2]] = $matches[1];
-            }
-            $types[$typeName] = $properties;
-        }
-
-        return $types;
     }
 }

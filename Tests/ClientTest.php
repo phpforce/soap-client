@@ -5,6 +5,8 @@ namespace Ddeboer\Salesforce\ClientBundle\Tests;
 use Ddeboer\Salesforce\ClientBundle\Client;
 use Ddeboer\Salesforce\ClientBundle\Request;
 use Ddeboer\Salesforce\ClientBundle\Response;
+use Ddeboer\Salesforce\ClientBundle\Event;
+
 
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -71,7 +73,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
     }
 
     public function testInvalidUpdateResultsInError()
-    {
+    {;
         $error = new Response\Error();
         $error->fields = array('Id');
         $error->message = 'Account ID: id value of incorrect type: 001M0000008tWTFIA3';
@@ -99,6 +101,13 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         ), 'Account');
     }
 
+    public function testMergeMustThrowException()
+    {
+        $soapClient= $this->getSoapClient(array('merge'));
+        $this->setExpectedException('\InvalidArgumentException', 'must be an instance of');
+        $this->getClient($soapClient)->merge(array(new \stdClass), 'Account');
+    }
+
     public function testMerge()
     {
         $soapClient= $this->getSoapClient(array('merge'));
@@ -116,13 +125,69 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $mergeResult->success = true;
         $result = new \stdClass();
         $result->result = array($mergeResult);
-        
+
         $soapClient
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('merge')
             ->will($this->returnValue($result));
 
         $this->getClient($soapClient)->merge(array($mergeRequest), 'Account');
+    }
+
+    public function testWithEventDispatcher()
+    {
+        $response = new \stdClass();
+
+        $error = new Response\Error();
+        $error->fields = array('Id');
+        $error->message = 'Account ID: id value of incorrect type: 001M0000008tWTFIA3';
+        $error->statusCode = 'MALFORMED_ID';
+
+        $saveResult = new Response\SaveResult();
+        $saveResult->errors = array($error);
+        $saveResult->success = false;
+
+        $response->result = array($saveResult);
+
+        $soapClient = $this->getSoapClient(array('create'));
+        $soapClient
+            ->expects($this->once())
+            ->method('create')
+            ->will($this->returnValue($response));
+
+        $client = $this->getClient($soapClient);
+
+        $dispatcher = $this
+            ->getMockBuilder('Symfony\Component\EventDispatcher\EventDispatcher')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $c = new \stdClass();
+        $c->AccountId = '123';
+
+        $params = array(
+            'sObjects'  => array(new \SoapVar($c, SOAP_ENC_OBJECT, 'Contact', Client::SOAP_NAMESPACE))
+        );
+
+        $dispatcher
+            ->expects($this->at(0))
+            ->method('dispatch')
+            ->with('salesforce.client.request', new Event\RequestEvent('create', $params));
+
+        $dispatcher
+            ->expects($this->at(1))
+            ->method('dispatch')
+            ->with('salesforce.client.response');
+
+        $dispatcher
+            ->expects($this->at(2))
+            ->method('dispatch')
+            ->with('salesforce.client.error');
+
+        $this->setExpectedException('\InvalidArgumentException', 'MALFORMED_ID');
+
+        $client->setEventDispatcher($dispatcher);
+        $client->create(array($c), 'Contact');        
     }
 
     protected function getClient(\SoapClient $soapClient)
@@ -132,7 +197,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
 
     protected function getSoapClient($methods)
     {
-        $soapClient = $this->getMockBuilder('\SoapClient')
+        $soapClient = $this->getMockBuilder('Ddeboer\Salesforce\ClientBundle\Soap\SoapClient')
             ->setMethods(array_merge($methods, array('login')))
             ->setConstructorArgs(array(__DIR__.'/Fixtures/sandbox.enterprise.wsdl.xml'))
             ->getMock();
@@ -143,7 +208,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $loginResult->result->serverUrl = 'http://dinges';
 
         $soapClient
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('login')
             ->will($this->returnValue($loginResult));
 

@@ -33,6 +33,7 @@ class DdeboerSalesforceClientExtension extends Extension
         }
 
         $clientBuilder = new DefinitionDecorator('besimple.soap.client.builder');
+        $clientBuilder->setClass('Ddeboer\Salesforce\ClientBundle\Soap\SoapClientBuilder');
         $container->setDefinition('ddeboer_salesforce_client.soap.client.builder', $clientBuilder);
 
         $clientBuilder->replaceArgument(0, $config['wsdl']);
@@ -48,7 +49,7 @@ class DdeboerSalesforceClientExtension extends Extension
         $converters = $container->getDefinition('ddeboer_salesforce_client.soap.converter.collection');
         $converters->addMethodCall('set', array(array(
             new Reference('ddeboer_salesforce_client.soap.converter.date_time'),
-            new Reference('ddeboer_salesforce_client.soap.converter.date'),
+            new Reference('besimple.soap.converter.date')
         )));
         $clientBuilder->replaceArgument(3, new Reference('ddeboer_salesforce_client.soap.converter.collection'));
     }

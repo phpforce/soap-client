@@ -123,7 +123,7 @@ class RecordIterator implements \SeekableIterator, \Countable
      *
      * @return mixed
      */
-    public function getFirst()
+    public function first()
     {
         return $this->getObjectAt(0);
     }

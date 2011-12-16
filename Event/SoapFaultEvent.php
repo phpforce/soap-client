@@ -10,7 +10,7 @@ class SoapFaultEvent extends Event
 
     public function __construct(\SoapFault $soapFault)
     {
-        $this->soapFault = $soapFault;
+        $this->setSoapFault($soapFault);
     }
 
     public function getSoapFault()

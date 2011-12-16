@@ -11,8 +11,8 @@ class RequestEvent extends Event
 
     public function __construct($method, array $params = array())
     {
-        $this->method = $method;
-        $this->params = $params;
+        $this->setMethod($method);
+        $this->setParams($params);
     }
 
     public function getMethod()
@@ -30,7 +30,7 @@ class RequestEvent extends Event
         return $this->params;
     }
 
-    public function setParams($params)
+    public function setParams(array $params)
     {
         $this->params = $params;
     }

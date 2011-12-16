@@ -11,8 +11,8 @@ class ResponseEvent extends Event
 
     public function __construct(RequestEvent $requestEvent, $response)
     {
-        $this->requestEvent = $requestEvent;
-        $this->response = $response;
+        $this->setRequestEvent($requestEvent);
+        $this->setResponse($response);
     }
 
     public function getRequestEvent()
