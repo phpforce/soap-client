@@ -59,7 +59,7 @@
     "require": {
         "php": ">=5.3.0",
         "besimple/soap-bundle": "*",
-        "besimple/soap-client": "*",
+        "besimple/soap-client": "*"
     },
     "autoload": {
         "psr-0": { "Ddeboer\\Salesforce\\ClientBundle": "" }
