@@ -8,7 +8,7 @@
         <service id="ddeboer_salesforce_client.soap.client"
             factory-service="ddeboer_salesforce_client.soap.client.builder"
             factory-method="build"
-            class="BeSimple\SoapClient\SoapClient">
+            class="Ddeboer\Salesforce\ClientBundle\Soap\SoapClient">
         </service>
 
         <service id="ddeboer_salesforce_client.soap.converter.collection"
