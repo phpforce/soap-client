@@ -38,10 +38,15 @@ This bundle is available on [Packagist](http://packagist.org/packages/ddeboer/sa
 }
 ```
 
-### 2. Install it by running `composer.phar update`.
+### 2. Install it:
 
-### 3. Finally, add the bundle to your `AppKernel.php`:
+```
+$ composer.phar update
+```
 
+### 3. Finally, add the bundle to your kernel:
+
+Add the following to `AppKernel.php`:
 ```
     public function registerBundles()
     {
@@ -52,8 +57,6 @@ This bundle is available on [Packagist](http://packagist.org/packages/ddeboer/sa
         );
     }
 ```
-
-and install by running `$ composer.phar update`.
 
 Usage
 -----
