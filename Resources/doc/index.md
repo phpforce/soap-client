@@ -24,7 +24,8 @@ Installation
 ------------
 
 This bundle is available on [Packagist](http://packagist.org/packages/ddeboer/salesforce-client-bundle).
-To add this bundle to your project, add the following to your `composer.json`:
+
+### 1. To add this bundle to your project, add the following to your `composer.json`:
 
 ```
 {
@@ -35,6 +36,21 @@ To add this bundle to your project, add the following to your `composer.json`:
     }
     ...
 }
+```
+
+### 2. Install it by running `composer.phar update`.
+
+### 3. Finally, add the bundle to your `AppKernel.php`:
+
+```
+    public function registerBundles()
+    {
+        $bundles = array(
+            ...
+            new Ddeboer\Salesforce\MapperBundle\DdeboerSalesforceClientBundle(),
+            ...
+        );
+    }
 ```
 
 and install by running `$ composer.phar update`.
