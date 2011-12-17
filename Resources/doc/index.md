@@ -19,6 +19,9 @@ This bundle’s features include the following.
 * The BulkSaver helps you stay within your Salesforce API limits by using bulk
   creates, deletes, updates and upserts.
 * Completely unit tested (still working on that one).
+* Use the client in conjunction with the
+  [Mapper Bundle](https://github.com/ddeboer/DdeboerSalesforceMapperBundle)
+  to get even easier access to your Salesforce data.
 
 Installation
 ------------
