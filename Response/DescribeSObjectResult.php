@@ -57,8 +57,8 @@ class DescribeSObjectResult
     public function getChildRelationship($name)
     {
         return $this->getChildRelationships()->filter(function($input) use ($name) {
-            return $name === $input->getRelationshipName;
-        });
+            return $name === $input->getRelationshipName();
+        })->first();
     }
 
     /**
@@ -236,5 +236,24 @@ class DescribeSObjectResult
     public function isUpdateable()
     {
         return $this->updateable;
+    }
+
+    /**
+     * Get all fields that constitute relationships to other objects
+     *
+     * @return ArrayCollection
+     */
+    public function getRelationshipFields()
+    {
+        return $this->getFields()->filter(function($field) {
+            return null !== $field->getRelationshipName();
+        });
+    }
+
+    public function getRelationshipField($name)
+    {
+        return $this->getRelationshipFields()->filter(function($field) use ($name) {
+            return $name === $field->getRelationshipName();
+        })->first();
     }
 }
