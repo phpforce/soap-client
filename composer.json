@@ -15,6 +15,7 @@
         "besimple-soap-bundle": {
             "package": {
                 "name": "besimple/soap-bundle",
+                "version": "0.1-dev",
                 "source": {
                     "url": "git://github.com/BeSimple/BeSimpleSoapBundle.git",
                     "type": "git",
@@ -29,6 +30,7 @@
         "besimple-soap-client": {
             "package": {
                 "name": "besimple/soap-client",
+                "version": "0.1-dev",
                 "source": {
                     "url": "git://github.com/BeSimple/BeSimpleSoapClient.git",
                     "type": "git",
@@ -45,6 +47,7 @@
         "besimple-soap-common": {
             "package": {
                 "name": "besimple/soap-common",
+                "version": "0.1-dev",
                 "source": {
                     "url": "git://github.com/BeSimple/BeSimpleSoapCommon.git",
                     "type": "git",
