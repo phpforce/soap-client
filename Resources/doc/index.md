@@ -24,6 +24,20 @@ Installation
 ------------
 
 This bundle is available on [Packagist](http://packagist.org/packages/ddeboer/salesforce-client-bundle).
+To add this bundle to your project, add the following to your `composer.json`:
+
+```
+{
+    ...
+    "require": {
+        ...,
+        "ddeboer/salesforce-client-bundle": "*"
+    }
+    ...
+}
+```
+
+and install by running `$ composer.phar update`.
 
 Usage
 -----
