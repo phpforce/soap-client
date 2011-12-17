@@ -7,4 +7,5 @@ class QueryResult
     public $done;
     public $queryLocator;
     public $records;
+    public $size;
 }
