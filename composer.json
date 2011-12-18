@@ -11,6 +11,7 @@
             "email": "david@ddeboer.nl"
         }
     ],
+    "version": "master-dev",
     "repositories": {
         "besimple-soap-bundle": {
             "package": {
