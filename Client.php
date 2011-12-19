@@ -13,7 +13,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @author David de Boer <david@ddeboer.nl>
  */
-class Client
+class Client implements ClientInterface
 {
     /**
      * SOAP namespace
@@ -90,12 +90,23 @@ class Client
     }
 
     /**
-     * Create one or more Salesforce objects
-     *
-     * @param array $objects    Array of Salesforce objects
-     * @param string $type      E.g. Account or Contact
-     * @return Response\SaveResult[]
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_create.htm
+     * {@inheritdoc}
+     */
+    public function convertLead(array $leadConverts)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function emptyRecycleBin(array $ids)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function create(array $objects, $type)
     {
@@ -105,11 +116,7 @@ class Client
     }
 
     /**
-     * Deletes one or more records from your organization’s data
-     *
-     * @param array $ids    Salesforce object IDs
-     * @return Response\DeleteResult[]
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_delete.htm
+     * {@inheritdoc}
      */
     public function delete(array $ids)
     {
@@ -119,10 +126,7 @@ class Client
     }
 
     /**
-     * Retrieves a list of available objects for your organization’s data
-
-     * @return Response\DescribeGlobalResult
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_describeglobal.htm
+     * {@inheritdoc}
      */
     public function describeGlobal()
     {
@@ -130,26 +134,39 @@ class Client
     }
 
     /**
-     * describes metadata (field list and object properties) for the specified object or array of objects
-     * 
-     * @param array $objects
-     * @param boolean $cache    Whether it’s okay to fetch results from cache
-     * @return Response\DescribeSObject[]
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_describesobjects.htm
+     * {@inheritdoc}
      */
-    public function describeSObjects(array $objects, $cache = true)
+    public function describeSObjects(array $objects)
     {
-        if (true === $cache) {
-
-        }
         return $this->call('describeSObjects', $objects);
     }
 
     /**
-     * Get user info
-     *
-     * @return Response\GetUserInfoResult
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_getuserinfo.htm
+     * {@inheritdoc}
+     */
+    public function describeTabs()
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDeleted($objectType, \DateTime $startDate, \DateTime $endDate)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUpdated($objectType, \DateTime $startDate, \DateTime $endDate)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getUserInfo()
     {
@@ -157,12 +174,15 @@ class Client
     }
 
     /**
-     * Logs in to the login server and starts a client session
-     *
-     * @param string $username  Salesforce username
-     * @param string $password  Salesforce password
-     * @param string $token     Salesforce security token
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_login.htm
+     * {@inheritdoc}
+     */
+    public function invalidateSessions(array $sessionIds)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function login($username, $password, $token)
     {
@@ -176,12 +196,15 @@ class Client
     }
 
     /**
-     * Merge a Salesforce lead, contact or account with one or two other
-     * Salesforce leads, contacts or accounts
-     *
-     * @param array $mergeRequests  Array of merge request objects
-     * @return Response\MergeResult[]
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_merge.htm
+     * {@inheritdoc}
+     */
+    public function logout()
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function merge(array $mergeRequests, $type)
     {
@@ -218,11 +241,15 @@ class Client
     }
 
     /**
-     * Query salesforce API and return results as record iterator
-     *
-     * @param string $query
-     * @return RecordIterator
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_query.htm
+     * {@inheritdoc}
+     */
+   public function process(array $processResults)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function query($query)
     {
@@ -234,12 +261,7 @@ class Client
     }
 
     /**
-     * Retrieves data from specified objects, whether or not they have been
-     * deleted
-     *
-     * @param string $query
-     * @return Response\QueryResult[]
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_queryall.htm
+     * {@inheritdoc}
      */
     public function queryAll($query)
     {
@@ -251,11 +273,7 @@ class Client
     }
 
     /**
-     * Retrieves the next batch of objects from a query
-     *
-     * @param string $queryLocator
-     * @return Response\QueryResult
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_querymore.htm
+     * {@inheritdoc}
      */
     public function queryMore($queryLocator)
     {
@@ -264,7 +282,10 @@ class Client
         ));
     }
 
-    public function retrieve(array $fields, $type, array $ids)
+    /**
+     * {@inheritdoc}
+     */
+    public function retrieve(array $fields, array $ids, $objectType)
     {
         return $this->call('retrieve', array(
             'fieldList'     => implode(',', $fields),
@@ -274,11 +295,7 @@ class Client
     }
 
     /**
-     * Executes a text search in your organization’s data
-     *
-     * @param string $searchString
-     * @return Response\SearchResult
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_search.htm
+     * {@inheritdoc}
      */
     public function search($searchString)
     {
@@ -288,12 +305,15 @@ class Client
     }
 
     /**
-     * Updates one or more existing records in your organization’s data
-     *
-     * @param array $objects
-     * @param string $type  Object type
-     * @return Response\SaveResult[]
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_update.htm
+     * {@inheritdoc}
+     */
+    public function undelete(array $ids)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function update(array $objects, $type)
     {
@@ -303,14 +323,7 @@ class Client
     }
 
     /**
-     * Creates new records and updates existing records; uses a custom field to
-     * determine the presence of existing records
-     *
-     * @param string $externalIdFieldName
-     * @param array $objects Array of objects
-     * @param string $type   Object type
-     * @return Response\SaveResult[]
-     * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_upsert.htm
+     * {@inheritdoc}
      */
     public function upsert($externalIdFieldName, array $objects, $type)
     {
@@ -318,6 +331,38 @@ class Client
             'externalIDFieldName' => $externalIdFieldName,
             'sObjects'            => $this->createSoapVars($objects, $type)
         ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getServerTimestamp()
+        {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function resetPassword($userId)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function sendEmail(array $emails)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPassword($userId, $password)
+    {
+        throw new \BadMethodCallException('Not yet implemented');
     }
 
     /**
