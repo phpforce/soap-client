@@ -15,13 +15,17 @@ class BulkSaver implements BulkSaverInterface
 {
     /**
      * Maximum number of records that may be updated or created in one call
+     * 
+     * @var int
      */
-    const BULK_SAVE_LIMIT = 200;
+    private $bulkSaveLimit = 200;
 
     /**
      * Maximum number of records that may be deleted in one call
+     *
+     * @var int
      */
-    const BULK_DELETE_LIMIT = 200;
+    private $bulkDeleteLimit = 200;
 
     /**
      * Salesforce client
@@ -122,6 +126,49 @@ class BulkSaver implements BulkSaverInterface
     }
 
     /**
+     * Get bulk save limit
+     *
+     * @return int
+     */
+    public function getBulkSaveLimit()
+    {
+        return $this->bulkSaveLimit;
+    }
+
+    /**
+     * Set bulk Save limit
+     * @param int $bulkSaveLimit
+     * @return BulkSaver
+     */
+    public function setBulkSaveLimit($bulkSaveLimit)
+    {
+        $this->bulkSaveLimit = $bulkSaveLimit;        
+        return $this;
+    }
+
+    /**
+     * Get bulk delete limit
+     *
+     * @return int
+     */
+    public function getBulkDeleteLimit()
+    {
+        return $this->bulkDeleteLimit;
+    }
+
+    /**
+     * Set bulk delete limit
+     *
+     * @param int $bulkDeleteLimit
+     * @return BulkSaver
+     */
+    public function setBulkDeleteLimit($bulkDeleteLimit)
+    {
+        $this->bulkDeleteLimit = $bulkDeleteLimit;
+        return $this;
+    }
+
+    /**
      * Add a record to the create queue
      *
      * @param sObject $sObject
@@ -130,7 +177,7 @@ class BulkSaver implements BulkSaverInterface
     private function addBulkCreateRecord($record, $objectType)
     {
         if (isset($this->bulkCreateRecords[$objectType])
-            && count($this->bulkCreateRecords[$objectType]) == self::BULK_SAVE_LIMIT) {
+            && count($this->bulkCreateRecords[$objectType]) == $this->bulkSaveLimit) {
             $this->flushCreates($objectType);
         }
 
@@ -146,7 +193,7 @@ class BulkSaver implements BulkSaverInterface
      */
     private function addBulkDeleteRecord($record)
     {
-        if (self::BULK_DELETE_LIMIT === count($this->bulkDeleteRecords)) {
+        if ($this->bulkDeleteLimit === count($this->bulkDeleteRecords)) {
             $this->flushDeletes();
         }
 
@@ -162,7 +209,7 @@ class BulkSaver implements BulkSaverInterface
     private function addBulkUpdateRecord($sObject, $objectType)
     {
         if (isset($this->bulkUpdateRecords[$objectType])
-            && count($this->bulkUpdateRecords[$objectType]) == self::BULK_SAVE_LIMIT) {
+            && count($this->bulkUpdateRecords[$objectType]) == $this->bulkSaveLimit) {
             $this->flushUpdates($objectType);
         }
 
@@ -180,7 +227,7 @@ class BulkSaver implements BulkSaverInterface
         $this->bulkUpsertMatchFields[$objectType] = $matchField;
 
         if (isset($this->bulkUpsertRecords[$objectType])
-            && count($this->bulkUpsertRecords[$objectType]) == self::BULK_SAVE_LIMIT) {
+            && count($this->bulkUpsertRecords[$objectType]) == $this->bulkSaveLimit) {
             $this->flushUpserts($objectType);
         }
         
