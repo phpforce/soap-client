@@ -11,7 +11,7 @@ use Ddeboer\Salesforce\ClientBundle\Response\SaveResult;
  *
  * @author David de Boer <david@ddeboer.nl>
  */
-class BulkSaver
+class BulkSaver implements BulkSaverInterface
 {
     /**
      * Maximum number of records that may be updated or created in one call
