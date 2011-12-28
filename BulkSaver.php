@@ -72,11 +72,7 @@ class BulkSaver implements BulkSaverInterface
     }
 
     /**
-     * Delete a record in bulk
-     * 
-     * @param type $record      Any object is allowed, as long as it has an Id
-     *                          property with non-empty value
-     * @return BulkSaver
+     * {@inheritdoc}
      */
     public function delete($record)
     {
@@ -92,9 +88,7 @@ class BulkSaver implements BulkSaverInterface
     }
 
     /**
-     * Flush all creates, updates and upserts
-     *
-     * @return SaveResult[]
+     * {@inheritdoc}
      */
     public function flush()
     {
