@@ -289,7 +289,7 @@ class Client implements ClientInterface
     {
         return $this->call('retrieve', array(
             'fieldList'     => implode(',', $fields),
-            'sObjectType'   => $type,
+            'sObjectType'   => $objectType,
             'ids'           => $ids
         ));
     }
