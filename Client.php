@@ -581,6 +581,10 @@ class Client implements ClientInterface
                         $value  = $value->format('Y-m-d\TH:i:sP');
                     }
                     break;
+
+                case 'base64Binary':
+                    $value = base64_encode($value);
+                    break;
             }
 
             $sObject->$field = $value;
