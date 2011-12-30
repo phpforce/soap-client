@@ -10,5 +10,5 @@ env:
   - SYMFONY_VERSION=origin/master
 
 before_script:
-  - wget -nc http://http://getcomposer.org/composer.phar
+  - wget -nc http://getcomposer.org/composer.phar
   - php composer.phar update
