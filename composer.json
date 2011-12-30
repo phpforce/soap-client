@@ -17,7 +17,7 @@
                 "name": "besimple/soap-bundle",
                 "version": "0.1-dev",
                 "source": {
-                    "url": "git://github.com/BeSimple/BeSimpleSoapBundle.git",
+                    "url": "git://github.com/ddeboer/BeSimpleSoapBundle.git",
                     "type": "git",
                     "reference": "master"
                 },
@@ -40,7 +40,7 @@
                     "besimple/soap-common": "*"
                 },
                 "autoload": {
-                    "psr-0": { "BeSimple\\SoapClient": "" }
+                    "psr-0": { "BeSimple\\SoapClient": "src" }
                 }
             }
         },
@@ -54,7 +54,7 @@
                     "reference": "master"
                 },
                 "autoload": {
-                    "psr-0": { "BeSimple\\SoapCommon": "" }
+                    "psr-0": { "BeSimple\\SoapCommon": "src" }
                 }
             }
         }
@@ -62,7 +62,8 @@
     "require": {
         "php": ">=5.3.0",
         "besimple/soap-bundle": "*",
-        "besimple/soap-client": "*"
+        "besimple/soap-client": "*",
+        "symfony/symfony": "*"
     },
     "autoload": {
         "psr-0": { "Ddeboer\\Salesforce\\ClientBundle": "" }
