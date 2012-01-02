@@ -31,6 +31,9 @@
             <tag name="kernel.event_listener" event="salesforce.client.response" />
             <tag name="kernel.event_listener" event="salesforce.client.soap_fault" />
             <argument type="service" id="logger" />
+            <call method="setLogging">
+                <argument>%ddeboer_salesforce_client.logging%</argument>
+            </call>
         </service>
 
         <service id="ddeboer_salesforce_client.bulk_saver" class="Ddeboer\Salesforce\ClientBundle\BulkSaver">

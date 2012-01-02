@@ -7,7 +7,19 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
 
 class LogTransactionListener
 {
+    /**
+     * Logger
+     *
+     * @var LoggerInterface
+     */
     private $logger;
+
+    /**
+     * Whether logging is enabled
+     *
+     * @var boolean
+     */
+    private $logging;
     
     public function __construct(LoggerInterface $logger)
     {
@@ -16,7 +28,9 @@ class LogTransactionListener
 
     public function onSalesforceClientResponse(Event\ResponseEvent $event)
     {
-        $this->logger->debug('[Salesforce] response:', array($event->getResponse()));
+        if (true === $this->logging) {
+            $this->logger->debug('[Salesforce] response:', array($event->getResponse()));
+        }
     }
 
     public function onSalesforceClientSoapFault(Event\SoapFaultEvent $event)
@@ -29,5 +43,15 @@ class LogTransactionListener
         $error = $event->getError();
         $this->logger->err('[Salesforce] error: ' . $error->statusCode . ' - '
                            . $error->message, get_object_vars($error));
+    }
+
+    public function setLogging($logging)
+    {
+        $this->logging = $logging;
+    }
+
+    public function getLogging()
+    {
+        return $this->logging;
     }
 }

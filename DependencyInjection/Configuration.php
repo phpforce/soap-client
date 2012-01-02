@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('username')->isRequired()->end()
                 ->scalarNode('password')->isRequired()->end()
                 ->scalarNode('token')->isRequired()->end()
+                ->scalarNode('logging')->defaultValue('%kernel.debug%')->end()
                 ->arrayNode('classmap')
                     ->defaultValue(array(
                         'ChildRelationship' => 'Ddeboer\Salesforce\ClientBundle\Response\ChildRelationship',
