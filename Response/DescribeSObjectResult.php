@@ -253,7 +253,7 @@ class DescribeSObjectResult
     public function getRelationshipField($name)
     {
         return $this->getRelationshipFields()->filter(function($field) use ($name) {
-            return $name === $field->getRelationshipName();
+            return $name === $field->getName();
         })->first();
     }
 }
