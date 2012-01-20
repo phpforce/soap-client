@@ -106,6 +106,7 @@ interface ClientInterface
      * @param string $username  Salesforce username
      * @param string $password  Salesforce password
      * @param string $token     Salesforce security token
+     * @return Response\LoginResult
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_login.htm
      */
     function login($username, $password, $token);

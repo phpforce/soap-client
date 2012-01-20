@@ -193,6 +193,8 @@ class Client implements ClientInterface
 
         $this->setEndpointLocation($result->result->serverUrl);
         $this->setSessionId($result->result->sessionId);
+
+        return $result->result;
     }
 
     /**
