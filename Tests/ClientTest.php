@@ -6,6 +6,7 @@ use Ddeboer\Salesforce\ClientBundle\Client;
 use Ddeboer\Salesforce\ClientBundle\Request;
 use Ddeboer\Salesforce\ClientBundle\Response;
 use Ddeboer\Salesforce\ClientBundle\Event;
+use Ddeboer\Salesforce\ClientBundle\Response\LoginResult;
 
 
 class ClientTest extends \PHPUnit_Framework_TestCase
@@ -203,7 +204,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
             ->getMock();
 
         $loginResult = new \stdClass;
-        $loginResult->result = new \stdClass;
+        $loginResult->result = new LoginResult;
         $loginResult->result->sessionId = '123';
         $loginResult->result->serverUrl = 'http://dinges';
 
