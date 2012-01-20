@@ -64,6 +64,13 @@ class Client implements ClientInterface
     protected $types = array();
 
     /**
+     * Login result
+     * 
+     * @var Response\LoginResult
+     */
+    protected $loginResult;
+
+    /**
      * Construct Salesforce SOAP client
      *
      * @param \SoapClient $soapClient
@@ -191,10 +198,22 @@ class Client implements ClientInterface
             'password'  => $password.$token
         ));
 
-        $this->setEndpointLocation($result->result->serverUrl);
-        $this->setSessionId($result->result->sessionId);
-
+        $this->setLoginResult($result->result);
         return $result->result;
+    }
+
+    /**
+     * Get login result
+     *
+     * @return Response\LoginResult
+     */
+    public function getLoginResult()
+    {
+        if (null === $this->loginResult) {
+            $this->login($this->username, $this->password, $this->token);
+        }
+
+        return $this->loginResult;
     }
 
     /**
@@ -536,6 +555,13 @@ class Client implements ClientInterface
                 'sessionId' => $sessionId
             )
         );
+    }
+    
+    protected function setLoginResult(Response\LoginResult $loginResult)
+    {
+        $this->loginResult = $loginResult;
+        $this->setEndpointLocation($loginResult->serverUrl);
+        $this->setSessionId($loginResult->sessionId);        
     }
 
     /**
