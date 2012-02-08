@@ -34,10 +34,7 @@
                 "source": {
                     "url": "https://github.com/ddeboer/BeSimpleSoapClient.git",
                     "type": "git",
-                        "reference": "master"
-                },
-                "require": {
-                    "besimple/soap-common": "*"
+                    "reference": "master"
                 },
                 "autoload": {
                     "psr-0": { "BeSimple\\SoapClient": "src" }
