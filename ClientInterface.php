@@ -50,7 +50,7 @@ interface ClientInterface
      * Describes metadata (field list and object properties) for the specified object or array of objects
      *
      * @param array $objectNames
-     * @return Response\DescribeSObject[]
+     * @return Response\DescribeSObjectResult[]
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_describesobjects.htm
      */
     function describeSObjects(array $objectNames);
