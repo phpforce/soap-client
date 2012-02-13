@@ -102,3 +102,17 @@ foreach ($accounts as $account) {
     // will be iterated over.
 }
 ```
+
+### Logging
+
+By default, the Salesforce client logs requests and responses in debug mode.
+You can change this behaviour by configuring the `logging` option in your
+`config.yml`:
+
+```
+ddeboer_salesforce_client:
+  ...
+  logging: false
+  ...
+
+```
