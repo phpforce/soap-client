@@ -107,9 +107,6 @@ foreach ($accounts as $account) {
 
 ```
 
-
-One-to-many relations are themselves returned as a new
-
 ### Fetching large numbers of records
 
 If you issue a query that returns over 2000 records, only the first 2000 records
