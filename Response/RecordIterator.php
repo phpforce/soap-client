@@ -75,6 +75,13 @@ class RecordIterator implements \SeekableIterator, \Countable
     {
         if (isset($this->queryResult->records[$pointer])) {
             $this->current = $this->queryResult->records[$pointer];
+
+            foreach ($this->current as $key => &$value) {
+                if ($value instanceof QueryResult) {
+                    $value = new RecordIterator($this->client, $value);
+                }
+            }
+            
             return $this->current;
         }
 

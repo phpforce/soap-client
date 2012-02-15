@@ -72,8 +72,8 @@ Once installed, the bundle offers several services:
 Use the client to query and manipulate your organisation’s Salesforce data.
 
 ```
-$result = $this->container->get('ddeboer_salesforce_client')->query(
-    "select Name, SystemModstamp from Account LIMIT 5");
+$client = $this->container->get('ddeboer_salesforce_client')
+$result = $client->query("select Name, SystemModstamp from Account LIMIT 5");
 ```
 
 This will fetch five accounts from Salesforce and return them as a
@@ -85,6 +85,30 @@ foreach ($results as $account) {
     echo 'Last modified: ' . $account->SystemModstamp->format('Y-m-d H:i:') . "\n";
 }
 ```
+
+### One-to-many relations (subqueries)
+
+Results from [subqueries](http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_soql_select.htm) 
+are themselves returned as record iterators. So:
+
+```
+$client = $this->container->get('ddeboer_salesforce_client');
+$accounts = $client->query(
+    "select Id, (select Id, Name from Contacts) from Account limit 10"
+);
+
+foreach ($accounts as $account) {
+    if (isset($account->Contacts)) {
+        foreach ($account->Contacts as $contact) {
+            echo sprintf("Contact %s has name %s\n", $contact->Id, $contact->Name);
+        }
+    }
+}
+
+```
+
+
+One-to-many relations are themselves returned as a new
 
 ### Fetching large numbers of records
 
