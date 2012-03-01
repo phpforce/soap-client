@@ -29,7 +29,7 @@ class Field
     protected $precision;
     protected $relationshipName;
     protected $relationshipOrder;
-    protected $referenceTo;
+    protected $referenceTo = array();
     protected $restrictedPicklist;
     protected $scale;
     protected $soapType;
@@ -222,5 +222,20 @@ class Field
     public function isWriteRequiresMasterRead()
     {
         return $this->writeRequiresMasterRead;
+    }
+
+    /**
+     * Get whether this field references a certain object
+     * 
+     * @param string $object     Name of the referenced object
+     * @return boolean
+     */
+    public function references($object)
+    {
+        foreach ($this->referenceTo as $referencedObject) {
+            return $object == $referencedObject;
+        }
+
+        return false;
     }
 }
