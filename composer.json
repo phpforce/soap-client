@@ -11,11 +11,12 @@
             "email": "david@ddeboer.nl"
         }
     ],
-    "repositories": {
-        "besimple-soap-bundle": {
+    "repositories": [
+        {
+            "type": "package",
             "package": {
                 "name": "besimple/soap-bundle",
-                "version": "master-dev",
+                "version": "dev-master",
                 "source": {
                     "url": "https://github.com/ddeboer/BeSimpleSoapBundle.git",
                     "type": "git",
@@ -27,10 +28,11 @@
                 }
             }
         },
-        "besimple-soap-client": {
+        {
+            "type": "package",
             "package": {
                 "name": "besimple/soap-client",
-                "version": "master-dev",
+                "version": "dev-master",
                 "source": {
                     "url": "https://github.com/ddeboer/BeSimpleSoapClient.git",
                     "type": "git",
@@ -41,7 +43,8 @@
                 }
             }
         },
-        "besimple-soap-common": {
+        {
+            "type": "package",
             "package": {
                 "name": "besimple/soap-common",
                 "version": "master-dev",
@@ -55,7 +58,7 @@
                 }
             }
         }
-    },
+    ],
     "require": {
         "php": ">=5.3.0",
         "besimple/soap-bundle": "*",
