@@ -250,6 +250,12 @@ class DescribeSObjectResult
         });
     }
 
+    /**
+     * Get a relationship field
+     * 
+     * @param string $name
+     * @return Field
+     */
     public function getRelationshipField($name)
     {
         return $this->getRelationshipFields()->filter(function($field) use ($name) {
