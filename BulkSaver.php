@@ -290,13 +290,4 @@ class BulkSaver implements BulkSaverInterface
         
         return $result;
     }
-
-    /**
-     * Flush all remaining creates, updates and upserts on BulkSaver destruction
-     *
-     */
-    public function __destruct()
-    {
-        $this->flush();
-    }
 }
