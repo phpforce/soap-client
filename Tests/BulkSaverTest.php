@@ -24,6 +24,7 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
             $record->Name = 'An account';
             $bulkSaver->save($record, 'Account');
         }
+        $bulkSaver->flush();
     }
 
     public function testUpdate()
@@ -43,6 +44,7 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
             $record->Id = 123;
             $bulkSaver->save($record, 'Account');
         }
+        $bulkSaver->flush();
     }
 
     public function testDelete()
@@ -67,6 +69,7 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
         foreach ($tasks as $task) {
             $bulkSaver->delete($task);
         }
+        $bulkSaver->flush();
     }
 
     public function testDeleteWithoutIdThrowsException()
@@ -92,7 +95,8 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
 
         for ($i = 0; $i < 201; $i++) {
             $bulkSaver->save($account, 'Account', 'Name');
-        }        
+        }
+        $bulkSaver->flush();
     }
 
     public function testFlushEmpty()
