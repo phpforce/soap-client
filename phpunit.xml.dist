@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit bootstrap="./Tests/bootstrap.php" colors="true">
-
-    <php>
-        <server name="SYMFONY" value="../../../../../symfony/src" />
-        <server name="BESIMPLE_SOAP_COMMON" value="../../../../../besimple/soap-common/src" />
-        <server name="BESIMPLE_SOAP_CLIENT" value="../../../../../besimple/soap-client/src" />
-        <server name="BESIMPLE_SOAP_BUNDLE" value="../../../../../besimple/soap-bundle" />
-    </php>
-
     <testsuites>
-        <testsuite name="DdeboerSalesforceClientBundle test suite">
+        <testsuite name="DdeboerSalesforceClientBundle">
             <directory suffix="Test.php">./Tests</directory>
         </testsuite>
     </testsuites>
@@ -21,6 +13,7 @@
             <exclude>
                 <directory>./Resources</directory>
                 <directory>./Tests</directory>
+                <directory>./vendor</directory>
             </exclude>
         </whitelist>
     </filter>
