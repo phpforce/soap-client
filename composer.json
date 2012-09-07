@@ -64,7 +64,7 @@
         "besimple/soap-bundle": "*",
         "besimple/soap-client": "*",
         "besimple/soap-common": "*",
-        "symfony/event-dispatcher": "*"
+        "symfony/event-dispatcher": "2.1.*"
     },
     "autoload": {
         "psr-0": { "Ddeboer\\Salesforce\\ClientBundle": "" }
