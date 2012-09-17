@@ -65,7 +65,7 @@ class Client implements ClientInterface
 
     /**
      * Login result
-     * 
+     *
      * @var Response\LoginResult
      */
     protected $loginResult;
@@ -101,7 +101,12 @@ class Client implements ClientInterface
      */
     public function convertLead(array $leadConverts)
     {
-        throw new \BadMethodCallException('Not yet implemented');
+        return $this->call(
+            'convertLead',
+            array(
+                'leadConverts' => $leadConverts
+            )
+        );
     }
 
     /**
@@ -397,7 +402,7 @@ class Client implements ClientInterface
         $soapVars = array();
 
         foreach ($objects as $object) {
-            
+
             $object = $this->createSObject($object, $type);
             $soapVar = new \SoapVar($object, SOAP_ENC_OBJECT, $type, self::SOAP_NAMESPACE);
 
@@ -452,10 +457,11 @@ class Client implements ClientInterface
 
                 // Use first error for throwing exception
                 $error = /* @var $error Response\Error */  $result->errors[0];
-                $errorMessage = 'Salesforce returned error ' . $error->statusCode .
-                                ' for ID ' . $result->id
-                . ': ' . $error->message . "\n"
-                . json_encode($result->errors);
+                $errorMessage = 'Salesforce returned error ' . $error->statusCode;
+                if (isset($result->id)) {
+                    $errorMessage .= ' for ID ' . $result->id;
+                }
+                $errorMessage .= ': ' . $error->message . "\n" . json_encode($result->errors);
 
                 throw new \InvalidArgumentException($errorMessage);
             }
@@ -556,12 +562,12 @@ class Client implements ClientInterface
             )
         );
     }
-    
+
     protected function setLoginResult(Response\LoginResult $loginResult)
     {
         $this->loginResult = $loginResult;
         $this->setEndpointLocation($loginResult->serverUrl);
-        $this->setSessionId($loginResult->sessionId);        
+        $this->setSessionId($loginResult->sessionId);
     }
 
     /**

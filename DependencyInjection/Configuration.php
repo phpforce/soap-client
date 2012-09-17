@@ -35,6 +35,8 @@ class Configuration implements ConfigurationInterface
                         'DescribeSObjectResult' => 'Ddeboer\Salesforce\ClientBundle\Response\DescribeSObjectResult',
                         'Error'         => 'Ddeboer\Salesforce\ClientBundle\Response\Error',
                         'Field'         => 'Ddeboer\Salesforce\ClientBundle\Response\Field',
+                        'LeadConvert' => 'Ddeboer\Salesforce\ClientBundle\Request\LeadConvert',
+                        'LeadConvertResult' => 'Ddeboer\Salesforce\ClientBundle\Response\LeadConvertResult',
                         'LoginResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\LoginResult',
                         'MergeResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\MergeResult',
                         'QueryResult'   => 'Ddeboer\Salesforce\ClientBundle\Response\QueryResult',
