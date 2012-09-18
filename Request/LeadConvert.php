@@ -7,10 +7,10 @@ class LeadConvert
     public $accountId;
     public $contactId;
     public $convertedStatus;
-    public $doNotCreateOpportunity;
+    public $doNotCreateOpportunity = false;
     public $leadId;
     public $opportunityName;
-    public $overwriteLeadSource;
+    public $overwriteLeadSource = false;
     public $ownerId;
-    public $sendNotificationEmail;
+    public $sendNotificationEmail = false;
 }
