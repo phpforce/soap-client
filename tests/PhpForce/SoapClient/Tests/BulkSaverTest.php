@@ -1,14 +1,13 @@
 <?php
+namespace PhpForce\SoapClient\Tests;
 
-namespace Ddeboer\Salesforce\ClientBundle\Tests;
-
-use Ddeboer\Salesforce\ClientBundle\BulkSaver;
+use PhpForce\SoapClient\BulkSaver;
 
 class BulkSaverTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreate()
     {
-        $client = $this->getMockBuilder('Ddeboer\Salesforce\ClientBundle\Client')
+        $client = $this->getMockBuilder('PhpForce\SoapClient\Client')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -107,7 +106,7 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
 
     protected function getClient()
     {
-        return $this->getMockBuilder('Ddeboer\Salesforce\ClientBundle\Client')
+        return $this->getMockBuilder('PhpForce\SoapClient\Client')
             ->disableOriginalConstructor()
             ->getMock();
     }
