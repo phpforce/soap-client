@@ -23,7 +23,7 @@
     },
     "autoload": {
         "psr-0": {
-            "PhpForce\\SoapClient": "src"
+            "Phpforce\\SoapClient": "src"
         }
     }
 }
