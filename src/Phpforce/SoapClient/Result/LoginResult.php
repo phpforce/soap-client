@@ -72,7 +72,7 @@ class LoginResult
     }
 
     /**
-     * Get the server instance, e.g. ‘eu1-api’
+     * Get the server instance, e.g. ‘eu1’ or ‘cs7’
      *
      * @return string
      */
@@ -82,9 +82,16 @@ class LoginResult
             throw new \UnexpectedValueException('Server URL must be set');
         }
 
-        $url = parse_url($this->serverUrl);
-        $host = explode('.', $url['host']);
+        $match = preg_match(
+            '/https:\/\/(?<instance>[^-\.]+)/',
+            $this->serverUrl,
+            $matches
+        );
 
-        return $host[0];
+        if (!$match || !isset($matches['instance'])) {
+            throw new \RuntimeException('Server instance could not be determined');
+        }
+
+        return $matches['instance'];
     }
 }
