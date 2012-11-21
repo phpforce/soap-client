@@ -38,6 +38,7 @@ class SoapClientFactory
         'SearchResult'          => 'Phpforce\SoapClient\Result\SearchResult',
         'SendEmailError'        => 'Phpforce\SoapClient\Result\SendEmailError',
         'SendEmailResult'       => 'Phpforce\SoapClient\Result\SendEmailResult',
+        'SingleEmailMessage'    => 'Phpforce\SoapClient\Request\SingleEmailMessage',
         'sObject'               => 'Phpforce\SoapClient\Result\SObject',
         'UndeleteResult'        => 'Phpforce\SoapClient\Result\UndeleteResult'
     );
