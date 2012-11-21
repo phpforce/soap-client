@@ -12,4 +12,5 @@ class SingleEmailMessage extends BaseEmail
     public $targetObjectId;
     public $toAddresses;
     public $whatId;
+    public $orgWideEmailAddressId;
 }
