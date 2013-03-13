@@ -173,9 +173,9 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $c = new \stdClass();
         $c->AccountId = '123';
 
-        $params = array(
-            'sObjects'  => array(new \SoapVar($c, SOAP_ENC_OBJECT, 'Contact', Client::SOAP_NAMESPACE))
-        );
+//        $params = array(
+//            'sObjects'  => array(new \SoapVar($c, SOAP_ENC_OBJECT, 'Contact', Client::SOAP_NAMESPACE))
+//        );
 
 //        $dispatcher
 //            ->expects($this->at(0))

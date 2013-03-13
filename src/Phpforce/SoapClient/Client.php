@@ -14,13 +14,6 @@ use Phpforce\SoapClient\Exception;
  */
 class Client extends AbstractHasDispatcher implements ClientInterface
 {
-    /*
-     * SOAP namespace
-     *
-     * @var string
-     */
-    const SOAP_NAMESPACE = 'urn:enterprise.soap.sforce.com';
-
     /**
      * SOAP session header
      *
@@ -278,7 +271,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
                 $this->createSObject($mergeRequest->masterRecord, $type),
                 SOAP_ENC_OBJECT,
                 $type,
-                self::SOAP_NAMESPACE
+                $this->soapClient->getNamespace('tns')
             );
         }
 
@@ -473,7 +466,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
                 $sObject->fieldsToNull = $fieldsToNullVar;
             }
 
-            $soapVar = new \SoapVar($sObject, SOAP_ENC_OBJECT, $type, self::SOAP_NAMESPACE);
+            $soapVar = new \SoapVar($sObject, SOAP_ENC_OBJECT, $type, $this->soapClient->getNamespace('tns'));
             $soapVars[] = $soapVar;
         }
 
@@ -564,7 +557,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
 
             throw $soapFault;
         }
-
+        
         // No result e.g. for logout, delete with empty array
         if (!isset($result->result)) {
             return array();
@@ -599,7 +592,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
     {
         $soapHeaderObjects = array();
         foreach ($headers as $key => $value) {
-            $soapHeaderObjects[] = new \SoapHeader(self::SOAP_NAMESPACE, $key, $value);
+            $soapHeaderObjects[] = new \SoapHeader($this->soapClient->getNamespace('tns'), $key, $value);
         }
 
         $this->soapClient->__setSoapHeaders($soapHeaderObjects);
@@ -623,7 +616,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
     protected function setSessionId($sessionId)
     {
         $this->sessionHeader = new \SoapHeader(
-            self::SOAP_NAMESPACE,
+            $this->soapClient->getNamespace('tns'),
             'SessionHeader',
             array(
                 'sessionId' => $sessionId
