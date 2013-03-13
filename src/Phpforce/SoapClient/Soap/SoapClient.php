@@ -14,7 +14,23 @@ class SoapClient extends \SoapClient
      * @var array
      */
     protected $types;
-
+    
+    protected $namespaces = array();
+    
+    public function __construct($wsdl, array $options = array()) 
+    {
+        // Parse WSDL for namespaces
+        $xml = new \SimpleXMLElement(\file_get_contents($wsdl));
+        $this->namespaces = $xml->getDocNamespaces();
+        
+        parent::__construct($wsdl, $options);
+    }
+    
+    public function getNamespace($ns)
+    {
+        return $this->namespaces[$ns];
+    }
+    
     /**
      * Retrieve SOAP types from the WSDL and parse them
      *
