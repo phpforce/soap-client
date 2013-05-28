@@ -61,7 +61,8 @@ class SoapClientFactory
             'trace'     => 1,
             'features'  => \SOAP_SINGLE_ELEMENT_ARRAYS,
             'classmap'  => $this->classmap,
-            'typemap'   => $this->getTypeConverters()->getTypemap()
+            'typemap'   => $this->getTypeConverters()->getTypemap(),
+            'cache_wsdl' => \WSDL_CACHE_MEMORY
         ));
     }
 
