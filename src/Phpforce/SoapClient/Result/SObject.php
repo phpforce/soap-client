@@ -11,11 +11,10 @@ class SObject
     /**
      * @var string
      */
-    protected $Id;
-
+    public $Id;
+    
     public function getId()
     {
         return $this->Id;
     }
-
 }
