@@ -28,9 +28,9 @@ class BulkSaver implements BulkSaverInterface
     private $bulkDeleteLimit = 200;
 
     /**
-     * Salesforce client
+     * Salesforce SOAP client
      *
-     * @var Client
+     * @var ClientInterface
      */
     private $client;
 
@@ -45,7 +45,7 @@ class BulkSaver implements BulkSaverInterface
      *
      * @param Client $client        Salesforce client
      */
-    public function __construct(Client $client)
+    public function __construct(ClientInterface $client)
     {
         $this->client = $client;
     }
@@ -53,9 +53,10 @@ class BulkSaver implements BulkSaverInterface
     /**
      * Save a record in bulk
      *
-     * @param mixed $record
-     * @param string $objectType    The record type, e.g., Account
-     * @param string $matchField    Optional match field for upserts
+     * @param mixed  $record
+     * @param string $objectType The record type, e.g., Account
+     * @param string $matchField Optional match field for upserts
+     *
      * @return BulkSaver
      */
     public function save($record, $objectType, $matchField = null)
