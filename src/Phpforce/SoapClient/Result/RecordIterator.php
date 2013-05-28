@@ -180,7 +180,7 @@ class RecordIterator implements \SeekableIterator, \Countable
      */
     public function seek($position)
     {
-        $this->pointer = $position;
+        return $this->getObjectAt($position);
     }
 
     /**
