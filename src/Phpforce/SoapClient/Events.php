@@ -3,8 +3,8 @@ namespace Phpforce\SoapClient;
 
 final class Events
 {
-    const REQUEST    = 'php_force.soap_client.request';
-    const RESPONSE   = 'php_force.soap_client.response';
-    const FAULT      = 'php_force.soap_client.fault';
+    const REQUEST    = 'phpforce.soap_client.request';
+    const RESPONSE   = 'phpforce.soap_client.response';
+    const FAULT      = 'phpforce.soap_client.fault';
 }
 
