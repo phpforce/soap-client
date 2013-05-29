@@ -26,3 +26,23 @@ This library’s features include the following.
 * Use the client in conjunction with the Symfony2
   [Mapper Bundle](https://github.com/ddeboer/DdeboerSalesforceMapperBundle)
   to get even easier access to your Salesforce data.
+
+Installation
+------------
+
+This library is available on [Packagist](http://packagist.org/packages/phpforce/soap-client). 
+The recommended way to install this library is through [Composer](http://getcomposer.org).
+
+To install it, add the following to your `composer.json`:
+
+```JSON
+{
+    "require": {
+        ...
+        "phpforce/soap-client": "dev-master",
+        ...
+    }
+}
+```
+
+And run `$ php composer.phar install`.
