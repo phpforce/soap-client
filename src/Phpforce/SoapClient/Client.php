@@ -675,7 +675,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
             $type = $this->soapClient->getSoapElementType($objectType, $field);
             if (!$type) {
 		//Allow for Salesforce custom tags
-		if (substr($field, -3) !== self::SALESFORCE_CUSTOM_SUFFIX) {
+		if (substr($field, -count(self::SALESFORCE_CUSTOM_SUFFIX)) !== self::SALESFORCE_CUSTOM_SUFFIX) {
                     continue;
 		}
             }
