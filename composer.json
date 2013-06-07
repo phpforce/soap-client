@@ -1,7 +1,7 @@
 {
     "name": "phpforce/soap-client",
     "type": "library",
-    "description": "Use the Salesforce SOAP API from PHP",
+    "description": "A PHP client for the Salesforce SOAP API",
     "keywords": [ "salesforce", "crm", "soap", "force.com", "web services" ],
     "license": "MIT",
     "authors": [
