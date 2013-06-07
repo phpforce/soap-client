@@ -21,6 +21,14 @@ class Client extends AbstractHasDispatcher implements ClientInterface
      */
     const SOAP_NAMESPACE = 'urn:enterprise.soap.sforce.com';
 
+	
+    /*
+     * Sales force custom tag suffix
+     *
+     * @var string
+     */
+    const SALESFORCE_CUSTOM_SUFFIX = '__c';
+
     /**
      * SOAP session header
      *
@@ -666,7 +674,10 @@ class Client extends AbstractHasDispatcher implements ClientInterface
         foreach (get_object_vars($object) as $field => $value) {
             $type = $this->soapClient->getSoapElementType($objectType, $field);
             if (!$type) {
-                continue;
+		//Allow for Salesforce custom tags
+		if (substr($field, -strlen(self::SALESFORCE_CUSTOM_SUFFIX)) !== self::SALESFORCE_CUSTOM_SUFFIX) {
+                    continue;
+		}
             }
 
             if ($value === null) {
