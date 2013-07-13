@@ -3,10 +3,12 @@ namespace Phpforce\SoapClient;
 
 use Phpforce\SoapClient\Soap\SoapClientFactory;
 use Phpforce\SoapClient\Plugin\LogPlugin;
-use Phpi\Log\LogInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Salesforce SOAP client builder
+ *
+ * @author David de Boer <david@ddeboer.nl>
  */
 class ClientBuilder
 {
@@ -35,7 +37,7 @@ class ClientBuilder
      *
      * @return ClientBuilder
      */
-    public function withLog(LogInterface $log)
+    public function withLog(LoggerInterface $log)
     {
         $this->log = $log;
 
