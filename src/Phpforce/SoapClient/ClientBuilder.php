@@ -33,7 +33,7 @@ class ClientBuilder
     /**
      * Enable logging
      *
-     * @param LogInterface $log Logger
+     * @param LoggerInterface $log Logger
      *
      * @return ClientBuilder
      */
