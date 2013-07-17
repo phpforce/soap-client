@@ -27,5 +27,8 @@
         "psr-0": {
             "Phpforce\\SoapClient": "src"
         }
+    },
+    "replace": {
+        "phpforge/soap-client": "*"
     }
 }
