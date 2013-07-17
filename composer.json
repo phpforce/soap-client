@@ -30,5 +30,8 @@
     },
     "replace": {
         "phpforce/soap-client": "*"
+    },
+    "conflict": {
+        "phpforce/soap-client": "*"
     }
 }
