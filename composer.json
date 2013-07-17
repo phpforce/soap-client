@@ -29,6 +29,6 @@
         }
     },
     "replace": {
-        "phpforge/soap-client": "*"
+        "phpforce/soap-client": "*"
     }
 }
