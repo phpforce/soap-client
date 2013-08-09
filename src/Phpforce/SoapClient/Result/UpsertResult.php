@@ -7,5 +7,13 @@ namespace Phpforce\SoapClient\Result;
  */
 class UpsertResult extends SaveResult
 {
+    /**
+     * @var boolean
+     */
+    protected $created;
 
+    public function isCreated()
+    {
+        return $this->created;
+    }
 }
