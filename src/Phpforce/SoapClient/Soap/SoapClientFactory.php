@@ -46,14 +46,14 @@ class SoapClientFactory
     /**
      * Type converters collection
      *
-     * @var TypeConverterCollection
+     * @var TypeConverter\TypeConverterCollection
      */
     protected $typeConverters;
 
     /**
      * @param string $wsdl Some argument description
      *
-     * @return void
+     * @return SoapClient
      */
     public function factory($wsdl)
     {
@@ -80,7 +80,7 @@ class SoapClientFactory
     /**
      * Get type converter collection that will be used for the \SoapClient
      *
-     * @return TypeConverterCollection
+     * @return TypeConverter\TypeConverterCollection
      */
     public function getTypeConverters()
     {
@@ -99,7 +99,7 @@ class SoapClientFactory
     /**
      * Set type converter collection
      *
-     * @param type $typeConverters Type converter collection
+     * @param TypeConverter\TypeConverterCollection $typeConverters Type converter collection
      *
      * @return SoapClientFactory
      */

@@ -2,8 +2,7 @@
 
 namespace Phpforce\SoapClient;
 
-use Phpforce\SoapClient\Client;
-use Phpforce\SoapClient\Response\SaveResult;
+use Phpforce\SoapClient\Result\SaveResult;
 
 /**
  * Add creates, updates and upserts to the queue, and issue them in bulk to
