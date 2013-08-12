@@ -3,6 +3,7 @@
 namespace Phpforce\SoapClient\Result;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Phpforce\SoapClient\Result\DescribeSObjectResult\Field;
 
 class DescribeSObjectResult
 {
@@ -111,7 +112,7 @@ class DescribeSObjectResult
 
     /**
      *
-     * @return ArrayCollection
+     * @return ArrayCollection|Field[]
      */
     public function getFields()
     {
