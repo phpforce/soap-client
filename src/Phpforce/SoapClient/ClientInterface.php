@@ -235,7 +235,7 @@ interface ClientInterface
      * @param array  $objects           Array of objects
      * @param string $objectType        Object type, e.g., account or contact
      *
-     * @return Result\SaveResult[]
+     * @return Result\UpsertResult[]
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_upsert.htm
      */
     public function upsert($externalFieldName, array $objects, $objectType);
