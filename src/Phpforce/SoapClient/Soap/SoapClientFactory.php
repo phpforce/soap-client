@@ -2,6 +2,7 @@
 namespace Phpforce\SoapClient\Soap;
 
 use Phpforce\SoapClient\Soap\TypeConverter;
+use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 
 /**
  * Factory to create a \SoapClient properly configured for the Salesforce SOAP
@@ -56,7 +57,7 @@ class SoapClientFactory
      *
      * @return SoapClient
      */
-    public function factory($wsdl)
+    public function getInstance(Wsdl $wsdl)
     {
         return new SoapClient($wsdl, array(
             'trace'     => 1,
@@ -93,7 +94,6 @@ class SoapClientFactory
                 )
             );
         }
-
         return $this->typeConverters;
     }
 

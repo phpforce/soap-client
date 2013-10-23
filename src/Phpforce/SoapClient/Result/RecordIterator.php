@@ -73,12 +73,22 @@ class RecordIterator implements \SeekableIterator, \Countable
      */
     protected function getObjectAt($pointer)
     {
-        if ($this->queryResult->getRecord($pointer)) {
-            $this->current = $this->queryResult->getRecord($pointer);
+        if (($current = $this->queryResult->getRecord($pointer)))
+        {
+            $this->current = $current;
 
-            foreach ($this->current as $key => &$value) {
-                if ($value instanceof QueryResult) {
+            foreach ($this->current as $key => &$value)
+            {
+                // ENTERPRISE WSDL
+                if ($value instanceof QueryResult)
+                {
                     $value = new RecordIterator($this->client, $value);
+                }
+
+                // PARTNER WSDL
+                elseif($key === 'any')
+                {
+                    $this->client->cleanupAnyXML($this->current, $value);
                 }
             }
 

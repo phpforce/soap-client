@@ -1,6 +1,7 @@
 <?php
 
 namespace Phpforce\SoapClient\Soap;
+use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 
 /**
  * SOAP client used for the Salesforce API client
@@ -14,21 +15,30 @@ class SoapClient extends \SoapClient
      * @var array
      */
     protected $types;
-    
-    protected $namespaces = array();
-    
-    public function __construct($wsdl, array $options = array()) 
+
+    /**
+     * @var Wsdl
+     */
+    protected $wsdl;
+
+    /**
+     * @param Wsdl $wsdl
+     * @param array $options
+     */
+    public function __construct(Wsdl $wsdl, array $options = array())
     {
-        // Parse WSDL for namespaces
-        $xml = new \SimpleXMLElement(\file_get_contents($wsdl));
-        $this->namespaces = $xml->getDocNamespaces();
-        
-        parent::__construct($wsdl, $options);
+        parent::__construct($wsdl->getPathname(), $options);
+
+        $this->wsdl = $wsdl;
     }
-    
+
+    /**
+     * @param string $ns
+     * @return string $uri
+     */
     public function getNamespace($ns)
     {
-        return $this->namespaces[$ns];
+        return $this->wsdl->getNamespace($ns);
     }
     
     /**
