@@ -55,7 +55,14 @@ class ClientBuilder
         $soapClientFactory = new SoapClientFactory();
         $soapClient = $soapClientFactory->getInstance($this->wsdl);
 
-        $client = new Client($soapClient, $this->username, $this->password, $this->token);
+        if($this->wsdl->getTns() === Wsdl::TNS_ENTERPRISE)
+        {
+            $client = new EnterpriseClient($soapClient, $this->username, $this->password, $this->token);
+        }
+        else
+        {
+            $client = new PartnerClient($soapClient, $this->username, $this->password, $this->token);
+        }
 
         if ($this->log)
         {

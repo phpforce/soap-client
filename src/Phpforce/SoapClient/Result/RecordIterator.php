@@ -51,6 +51,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     public function __construct(Client $client, QueryResult $result)
     {
         $this->client = $client;
+
         $this->setQueryResult($result);
     }
 
