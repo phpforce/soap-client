@@ -90,6 +90,10 @@ class RecordIterator implements \SeekableIterator, \Countable
                 {
                     $this->client->cleanupAnyXML($this->current, $value);
                 }
+                elseif($key === 'Id' && is_array($value))
+                {
+                    $value = $value[0];
+                }
             }
 
             return $this->current;
