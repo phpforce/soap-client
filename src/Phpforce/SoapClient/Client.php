@@ -448,7 +448,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      *
      * @return \SoapVar[]
      */
-    private function createObjectsSoapVars(array $objects, $type = null)
+    protected function createObjectsSoapVars(array $objects, $type = null)
     {
         $soapVars = array();
 
@@ -528,9 +528,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      * @param string $sfType
      * @return string
      */
-    private function convertFieldForDML($objectType, $field, $value)
+    protected function convertFieldForDML($objectType, $field, $value)
     {
-        if(false && $type = $this->soapClient->getSoapElementType($objectType, $field))
+        if($type = $this->soapClient->getSoapElementType($objectType, $field))
         {
             // As PHP \DateTime to SOAP dateTime conversion is not done
             // automatically with the SOAP typemap for sObjects, we do it here.
@@ -643,7 +643,8 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected function init()
     {
         // If there’s no session header yet, this means we haven’t yet logged in
-        if (!$this->getSessionHeader()) {
+        if ( ! $this->getSessionHeader())
+        {
             $this->doLogin($this->username, $this->password, $this->token);
         }
     }
