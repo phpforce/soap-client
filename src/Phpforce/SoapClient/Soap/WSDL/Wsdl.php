@@ -20,7 +20,7 @@ class Wsdl implements \Serializable
     private $tns;
 
     /**
-     * @var array<string>
+     * @var string[]
      */
     private $namespaces;
 

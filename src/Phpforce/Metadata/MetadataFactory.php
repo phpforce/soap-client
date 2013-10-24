@@ -36,7 +36,7 @@ class MetadataFactory
 
     /**
      * @param string $sobjectType
-     * @return array<DescribeSObjectResult>
+     * @return DescribeSObjectResult[]
      */
     public function describeSobjects($sobjectType)
     {
