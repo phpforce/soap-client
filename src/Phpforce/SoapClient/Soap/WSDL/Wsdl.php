@@ -40,7 +40,7 @@ class Wsdl implements \Serializable
 
         $this->namespaces = $xml->getDocNamespaces();
 
-        $this->tns = isset($xml['targetNamespace']) ? $xml['targetNamespace'] : null;
+        $this->tns = isset($xml['targetNamespace']) ? (string)$xml['targetNamespace'] : null;
     }
 
     /**

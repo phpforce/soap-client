@@ -8,41 +8,39 @@
 
 namespace Phpforce\SoapClient;
 
+use Phpforce\SoapClient\Result\RecordIterator;
+
 class PartnerClient extends Client
 {
     /**
-     * {@inheritdoc}
+     * @param object $object
+     *
+     * @return object $object
      */
-    public function query($query)
+    public function sfToPhp($object)
     {
-        $result = $this->call(
-            'query',
-            array('queryString' => $query)
-        );
+        if($object instanceof Result\QueryResult)
+        {
+            return new RecordIterator($this, $object);
+        }
+        elseif(is_object($object))
+        {
+            $object->Id = $object->Id[0];
 
-        return new Result\LooseRecordIterator($this, $result);
+            if(isset($object->any))
+            {
+                $this->cleanupAnyXml($object);
+            }
+        }
+        return $object;
     }
 
     /**
-     * {@inheritdoc}
+     * @param object $object
      */
-    public function queryAll($query)
+    public function cleanupAnyXml($object)
     {
-        $result = $this->call(
-            'queryAll',
-            array('queryString' => $query)
-        );
-
-        return new Result\LooseRecordIterator($this, $result);
-    }
-
-    /**
-     * @param Result\SObject $current
-     * @param string $xml
-     */
-    public function cleanupAnyXml(Result\SObject $current, $any)
-    {
-        $any = (array)$any;
+        $any = (array)$object->any;
 
         foreach($any AS $name => $value)
         {
@@ -71,24 +69,14 @@ EOT;
                     {
                         $val = (string)$value;
                     }
-                    $current->$key = $val;
+                    $object->$key = $val;
                 }
             }
-
-            // n:1 relationship
-            elseif($value instanceof Result\SObject && isset($value->any))
+            else
             {
-                $this->cleanupAnyXml($value, $value->any);
-
-                $current->$name = $value;
-            }
-
-            // 1:n relationship
-            elseif($value instanceof Result\QueryResult)
-            {
-                $current->$name = new Result\LooseRecordIterator($this, $value);
+                $object->$name = $this->sfToPhp($value);
             }
         }
-        unset($current->any);
+        unset($object->any);
     }
 } 

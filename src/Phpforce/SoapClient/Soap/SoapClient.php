@@ -109,4 +109,12 @@ class SoapClient extends \SoapClient
             return $elements[$element];
         }
     }
+
+    /**
+     * @return \Phpforce\SoapClient\Soap\WSDL\Wsdl
+     */
+    public function getWsdl()
+    {
+        return $this->wsdl;
+    }
 }

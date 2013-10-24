@@ -278,5 +278,11 @@ interface ClientInterface
      * @param string $password Password
      */
     public function setPassword($userId, $password);
+
+    /**
+     * @param $object
+     * @return $object
+     */
+    public function sfToPhp($object);
 }
 

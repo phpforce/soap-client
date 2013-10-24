@@ -59,9 +59,13 @@ class ClientBuilder
         {
             $client = new EnterpriseClient($soapClient, $this->username, $this->password, $this->token);
         }
-        else
+        elseif($this->wsdl->getTns() === Wsdl::TNS_PARTNER)
         {
             $client = new PartnerClient($soapClient, $this->username, $this->password, $this->token);
+        }
+        else
+        {
+            throw new \UnexpectedValueException(sprintf('Wsdl with target namespace "%s" not supported.', $this->wsdl->getTns()));
         }
 
         if ($this->log)

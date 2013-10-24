@@ -11,28 +11,23 @@ namespace Phpforce\SoapClient;
 class EnterpriseClient extends Client
 {
     /**
-     * {@inheritdoc}
+     * @param object $object
+     *
+     * @return object $object
      */
-    public function query($query)
+    public function sfToPhp($object)
     {
-        $result = $this->call(
-            'query',
-            array('queryString' => $query)
-        );
-
-        return new Result\RecordIterator($this, $result);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function queryAll($query)
-    {
-        $result = $this->call(
-            'queryAll',
-            array('queryString' => $query)
-        );
-
-        return new Result\RecordIterator($this, $result);
+        if($object instanceof Result\QueryResult)
+        {
+            return new Result\RecordIterator($this, $object);
+        }
+        elseif(is_object($object))
+        {
+            foreach($object AS &$value)
+            {
+                $value = $this->sfToPhp($value);
+            }
+        }
+        return $object;
     }
 } 

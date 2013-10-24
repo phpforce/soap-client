@@ -1,6 +1,7 @@
 <?php
 namespace Phpforce\SoapClient;
 
+use Doctrine\Tests\Common\Persistence\Mapping\ClassMetadataFactoryTest;
 use Phpforce\Common\AbstractHasDispatcher;
 use Phpforce\SoapClient\Soap\SoapClient;
 use Phpforce\SoapClient\Result;
@@ -102,14 +103,14 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     /**
      * {@inheritdoc}
      */
-    public function create(array $objects, $type)
+    public function create(array $objects, $type = null)
     {
         $result = $this->call(
             'create',
-            array('sObjects' => $this->createSoapVars($objects, $type))
+            array('sObjects' => $sobjects = $this->createObjectsSoapVars($objects, $type))
         );
 
-        return $this->checkResult($result, $objects);
+        return $this->checkResult($result, $sobjects);
     }
 
     /**
@@ -292,6 +293,31 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     /**
      * {@inheritdoc}
      */
+    public function query($query)
+    {
+        $result = $this->call(
+            'query',
+            array('queryString' => $query)
+        );
+        return new Result\RecordIterator($this, $result);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function queryAll($query)
+    {
+        $result = $this->call(
+            'queryAll',
+            array('queryString' => $query)
+        );
+
+        return new Result\RecordIterator($this, $result);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function queryMore($queryLocator)
     {
         return $this->call(
@@ -344,14 +370,13 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     /**
      * {@inheritdoc}
      */
-    public function update(array $objects, $type)
+    public function update(array $objects, $type = null)
     {
         $result = $this->call(
             'update',
-            array('sObjects' => $this->createSoapVars($objects, $type))
+            array('sObjects' => $sobjects = $this->createObjectsSoapVars($objects, $type))
         );
-
-        return $this->checkResult($result, $objects);
+        return $this->checkResult($result, $sobjects);
     }
 
     /**
@@ -363,7 +388,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
             'upsert',
             array(
                 'externalIDFieldName' => $externalIdFieldName,
-                'sObjects'            => $this->createSoapVars($objects, $type)
+                'sObjects'            => $this->createObjectsSoapVars($objects, $type)
             )
         );
     }
@@ -394,7 +419,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         $result = $this->call(
             'sendEmail',
             array(
-                'messages' => $this->createSoapVars($emails, 'SingleEmailMessage')
+                'messages' => $this->createObjectsSoapVars($emails, 'SingleEmailMessage')
             )
         );
 
@@ -423,48 +448,112 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      *
      * @return \SoapVar[]
      */
-    protected function createSoapVars(array $objects, $type)
+    private function createObjectsSoapVars(array $objects, $type = null)
     {
         $soapVars = array();
 
-        foreach ($objects as $object) {
-
-            $sObject = $this->createSObject($object, $type);
-
-            $xml = '';
-            if (isset($sObject->fieldsToNull)) {
-                foreach ($sObject->fieldsToNull as $fieldToNull) {
-                    $xml .= '<fieldsToNull>' . $fieldToNull . '</fieldsToNull>';
-                }
-                $fieldsToNullVar = new \SoapVar(new \SoapVar($xml, XSD_ANYXML), SOAP_ENC_ARRAY);
-                $sObject->fieldsToNull = $fieldsToNullVar;
-            }
-
-            $soapVar = new \SoapVar($sObject, SOAP_ENC_OBJECT, $type, $this->soapClient->getNamespace('tns'));
-            $soapVars[] = $soapVar;
+        foreach ($objects as $object)
+        {
+            $soapVars[] = $this->createObjectSoapVars($object, $type);
         }
-
         return $soapVars;
     }
 
     /**
-     * Fix the fieldsToNull property for sObjects
-     *
-     * @param \SoapVar $object
-     * @return \SoapVar
+     * @param $object
+     * @param null|string $type
      */
-    protected function fixFieldsToNullXml(\SoapVar $object)
+    protected function createObjectSoapVars($object, $type = null)
     {
-        if (isset($object->enc_value->fieldsToNull)
-            && is_array($object->enc_value->fieldsToNull)
-            && count($object->enc_value->fieldsToNull) > 0)
+        if(is_array($object))
         {
-            $xml = '';
-            foreach ($object->enc_value->fieldsToNull as $fieldToNull) {
-                $xml .= '<fieldsToNull>' . $fieldToNull . '</fieldsToNull>';
-            }
-            return new \SoapVar(new \SoapVar($xml, XSD_ANYXML), SOAP_ENC_ARRAY);
+            $object = (object)$object;
         }
+
+        if($type === null && isset($object->type))
+        {
+            $type = $object->type;
+        }
+        if(null === $type)
+        {
+            throw new \InvalidArgumentException('Missing $type argument.');
+        }
+        return new \SoapVar($this->createSObject($object, $type), SOAP_ENC_OBJECT, $type, $this->soapClient->getWsdl()->getTns());
+    }
+
+    /**
+     * Create a Salesforce object
+     *
+     * Converts PHP \DateTimes to their SOAP equivalents.
+     *
+     * @param object $object     Any object with public properties
+     * @param string $objectType Salesforce object type
+     *
+     * @return \stdClass
+     */
+    protected function createSObject($object, $objectType)
+    {
+        $sObject = new \stdClass();
+
+        $fieldsToNull = array();
+
+        foreach (get_object_vars($object) AS $field => $value)
+        {
+            if(null === $value)
+            {
+                $fieldsToNull[] = $field;
+            }
+            elseif(is_scalar($value))
+            {
+                $sObject->$field = $this->convertFieldForDML($objectType, $field, $value);
+            }
+        }
+
+        if(count($fieldsToNull) > 0)
+        {
+            $sObject->fieldsToNull = new \SoapVar(
+                new \SoapVar(
+                    sprintf('<fieldsToNull>%s</fieldsToNull>', implode('</fieldsToNull><fieldsToNull>', $fieldsToNull)),
+                    XSD_ANYXML
+                ),
+                SOAP_ENC_ARRAY
+            );
+        }
+
+        return $sObject;
+    }
+
+    /**
+     * @param string $field
+     * @param string $sfType
+     * @return string
+     */
+    private function convertFieldForDML($objectType, $field, $value)
+    {
+        if(false && $type = $this->soapClient->getSoapElementType($objectType, $field))
+        {
+            // As PHP \DateTime to SOAP dateTime conversion is not done
+            // automatically with the SOAP typemap for sObjects, we do it here.
+            switch ($type)
+            {
+                case 'date':
+                    if ($value instanceof \DateTime)
+                    {
+                        $value  = $value->format('Y-m-d');
+                    }
+                    break;
+                case 'dateTime':
+                    if ($value instanceof \DateTime)
+                    {
+                        $value  = $value->format('Y-m-d\TH:i:sP');
+                    }
+                    break;
+                case 'base64Binary':
+                    $value = base64_encode($value);
+                    break;
+            }
+        }
+        return $value;
     }
 
     /**
@@ -487,7 +576,8 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
             // If the param was an (s)object, set it’s Id field
             if (is_object($params[$i])
                 && (!isset($params[$i]->Id) || null === $params[$i]->Id)
-                && $results[$i] instanceof Result\SaveResult) {
+                && $results[$i] instanceof Result\SaveResult)
+            {
                 $params[$i]->Id = $results[$i]->getId();
             }
 
@@ -523,7 +613,8 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         $requestEvent = new Event\RequestEvent($method, $params);
         $this->dispatch(Events::REQUEST, $requestEvent);
 
-        try {
+        try
+        {
             $result = $this->soapClient->$method($params);
         } catch (\SoapFault $soapFault) {
             $faultEvent = new Event\FaultEvent($soapFault, $requestEvent);
@@ -598,6 +689,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         );
     }
 
+    /**
+     * @param Result\LoginResult $loginResult
+     */
     protected function setLoginResult(Result\LoginResult $loginResult)
     {
         $this->loginResult = $loginResult;
@@ -617,51 +711,23 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     }
 
     /**
-     * Create a Salesforce object
+     * Fix the fieldsToNull property for sObjects
      *
-     * Converts PHP \DateTimes to their SOAP equivalents.
-     *
-     * @param object $object     Any object with public properties
-     * @param string $objectType Salesforce object type
-     *
-     * @return object
+     * @param \SoapVar $object
+     * @return \SoapVar
      */
-    protected function createSObject($object, $objectType)
+    /*protected function fixFieldsToNullXml(\SoapVar $object)
     {
-        $sObject = new \stdClass();
-
-        foreach (get_object_vars($object) as $field => $value) {
-            $type = $this->soapClient->getSoapElementType($objectType, $field);
-            if (!$type) {
-                continue;
+        if (isset($object->enc_value->fieldsToNull)
+            && is_array($object->enc_value->fieldsToNull)
+            && count($object->enc_value->fieldsToNull) > 0)
+        {
+            $xml = '';
+            foreach ($object->enc_value->fieldsToNull as $fieldToNull) {
+                $xml .= '<fieldsToNull>' . $fieldToNull . '</fieldsToNull>';
             }
-
-            if ($value === null) {
-                $sObject->fieldsToNull[] = $field;
-                continue;
-            }
-
-            // As PHP \DateTime to SOAP dateTime conversion is not done
-            // automatically with the SOAP typemap for sObjects, we do it here.
-            switch ($type) {
-                case 'date':
-                    if ($value instanceof \DateTime) {
-                        $value  = $value->format('Y-m-d');
-                    }
-                    break;
-                case 'dateTime':
-                    if ($value instanceof \DateTime) {
-                        $value  = $value->format('Y-m-d\TH:i:sP');
-                    }
-                    break;
-                case 'base64Binary':
-                    $value = base64_encode($value);
-                    break;
-            }
-
-            $sObject->$field = $value;
+            return new \SoapVar(new \SoapVar($xml, XSD_ANYXML), SOAP_ENC_ARRAY);
         }
-        return $sObject;
-    }
+    }*/
 }
 

@@ -76,33 +76,15 @@ class RecordIterator implements \SeekableIterator, \Countable
     {
         if (($current = $this->queryResult->getRecord($pointer)))
         {
-            $this->current = $current;
-
-            foreach ($this->current as $key => &$value)
-            {
-                // ENTERPRISE WSDL
-                if ($value instanceof QueryResult)
-                {
-                    $value = new RecordIterator($this->client, $value);
-                }
-
-                // PARTNER WSDL
-                elseif($key === 'any')
-                {
-                    $this->client->cleanupAnyXML($this->current, $value);
-                }
-                elseif($key === 'Id' && is_array($value))
-                {
-                    $value = $value[0];
-                }
-            }
+            $this->current = $this->client->sfToPhp($current);
 
             return $this->current;
         }
 
         // If no record was found at pointer, see if there are more records
         // available for querying
-        if (!$this->queryResult->isDone()) {
+        if (!$this->queryResult->isDone())
+        {
             $this->queryMore();
 
             return $this->getObjectAt($this->pointer);
