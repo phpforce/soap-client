@@ -1,8 +1,10 @@
 <?php
 namespace Phpforce\SoapClient;
 
-use Doctrine\Tests\Common\Persistence\Mapping\ClassMetadataFactoryTest;
 use Phpforce\Common\AbstractHasDispatcher;
+use Phpforce\Metadata\Cache\ApcCache;
+use Phpforce\Metadata\Cache\Memcache;
+use Phpforce\Metadata\MetadataFactory;
 use Phpforce\SoapClient\Soap\SoapClient;
 use Phpforce\SoapClient\Result;
 use Phpforce\SoapClient\Event;
@@ -59,6 +61,11 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected $loginResult;
 
     /**
+     * @var MetadataFactory
+     */
+    protected $metadataFactory;
+
+    /**
      * Construct Salesforce SOAP client
      *
      * @param SoapClient $soapClient SOAP client
@@ -72,6 +79,8 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         $this->username = $username;
         $this->password = $password;
         $this->token = $token;
+
+        $this->metadataFactory = new MetadataFactory($this, new Memcache());
     }
 
     /**
@@ -227,10 +236,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function getLoginResult()
     {
-        if (null === $this->loginResult) {
+        if (null === $this->loginResult)
+        {
             $this->login($this->username, $this->password, $this->token);
         }
-
         return $this->loginResult;
     }
 
@@ -530,28 +539,25 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     protected function convertFieldForDML($objectType, $field, $value)
     {
-        if($type = $this->soapClient->getSoapElementType($objectType, $field))
+        // As PHP \DateTime to SOAP dateTime conversion is not done
+        // automatically with the SOAP typemap for sObjects, we do it here.
+        switch($this->metadataFactory->getMetadata($sobjectType)->getField($field)->getType())
         {
-            // As PHP \DateTime to SOAP dateTime conversion is not done
-            // automatically with the SOAP typemap for sObjects, we do it here.
-            switch ($type)
-            {
-                case 'date':
-                    if ($value instanceof \DateTime)
-                    {
-                        $value  = $value->format('Y-m-d');
-                    }
-                    break;
-                case 'dateTime':
-                    if ($value instanceof \DateTime)
-                    {
-                        $value  = $value->format('Y-m-d\TH:i:sP');
-                    }
-                    break;
-                case 'base64Binary':
-                    $value = base64_encode($value);
-                    break;
-            }
+            case 'date':
+                if ($value instanceof \DateTime)
+                {
+                    $value  = $value->format('Y-m-d');
+                }
+                break;
+            case 'dateTime':
+                if ($value instanceof \DateTime)
+                {
+                    $value  = $value->format('Y-m-d\TH:i:sP');
+                }
+                break;
+            case 'base64Binary':
+                $value = base64_encode($value);
+                break;
         }
         return $value;
     }
@@ -709,6 +715,14 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected function setEndpointLocation($location)
     {
         $this->soapClient->__setLocation($location);
+    }
+
+    /**
+     * @return MetadataFactory
+     */
+    public function getMetadataFactory()
+    {
+        return $this->metadataFactory;
     }
 
     /**

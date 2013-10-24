@@ -8,9 +8,11 @@
 
 namespace Phpforce\Metadata\Cache;
 
+use Phpforce\SoapClient\Result\DescribeSObjectResult;
+
 interface CacheInterface
 {
-    public function set($sobjectType);
+    public function set(DescribeSObjectResult $sobjectType);
 
     public function get($sobjectType);
 }

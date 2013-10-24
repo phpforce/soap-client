@@ -1,6 +1,7 @@
 <?php
 namespace Phpforce\SoapClient;
 
+use Phpforce\Metadata\MetadataFactory;
 use Phpforce\SoapClient\Soap\SoapClientFactory;
 use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 use Phpforce\SoapClient\Plugin\LogPlugin;
@@ -13,6 +14,9 @@ use Psr\Log\LoggerInterface;
  */
 class ClientBuilder
 {
+    /**
+     * @var LoggerInterface
+     */
     protected $log;
 
     /**

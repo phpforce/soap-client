@@ -9,6 +9,7 @@
 namespace Phpforce\Metadata;
 
 use Phpforce\SoapClient\ClientInterface;
+use Phpforce\SoapClient\Result\DescribeSObjectResult;
 
 class MetadataFactory
 {
@@ -34,9 +35,10 @@ class MetadataFactory
     }
 
     /**
-     * @param $sobjectType
+     * @param string $sobjectType
+     * @return array<DescribeSObjectResult>
      */
-    public function getMetadata($sobjectType)
+    public function describeSobjects($sobjectType)
     {
         $sobjectType = (array)$sobjectType;
 
@@ -46,29 +48,37 @@ class MetadataFactory
 
         foreach($sobjectType AS $type)
         {
-            if(null === ($metadata = $this->cache->get($sobjectType)))
+            if(null === ($metadatum = $this->cache->get($type)))
             {
                 $toFetch[] = $type;
             }
             else
             {
-                $retVal[] = $metadata;
+                $retVal[$type] = $metadatum;
             }
         }
 
         if(count($toFetch) > 0)
         {
             $metadata = $this->client->describeSObjects($toFetch);
-        }
 
-        foreach($metadata AS $metadatum)
-        {
-            $this->cache->set($metadatum);
-            $retVal[] = $metadatum;
+            foreach($metadata AS $metadatum)
+            {
+                $this->cache->set($metadatum);
+                $retVal[$metadatum->getName()] = $metadatum;
+            }
         }
-
         return $retVal;
     }
 
+    /**
+     * @param $sobjectType
+     * @return DescribeSObjectResult
+     */
+    public function describeSobject($sobjectType)
+    {
+        $metadata = $this->describeSobjects($sobjectType);
 
-} 
+        return $metadata[$sobjectType];
+    }
+}

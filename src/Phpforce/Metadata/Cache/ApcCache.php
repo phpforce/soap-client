@@ -11,13 +11,8 @@ namespace Phpforce\Metadata\Cache;
 use \Memcache AS MC;
 use Phpforce\SoapClient\Result\DescribeSObjectResult;
 
-class Memcache implements CacheInterface
+class ApcCache implements CacheInterface
 {
-    /**
-     * @var \Memcache
-     */
-    private $mc;
-
     /**
      * @var int
      */
@@ -26,13 +21,9 @@ class Memcache implements CacheInterface
     /**
      * @param int $ttl
      */
-    public function __construct($ttl = 3600, $port = 11211)
+    public function __construct($ttl = 3600)
     {
         $this->ttl = $ttl;
-
-        $this->mc = new MC;
-
-        $this->mc->pconnect('127.0.0.1', 11211);
     }
 
     /**
@@ -41,11 +32,11 @@ class Memcache implements CacheInterface
      */
     public function get($sobjectType)
     {
-        if(false === ($metadata = $this->mc->get($sobjectType)))
+        if( ! apc_exists($sobjectType))
         {
             return null;
         }
-        return $metadata;
+        return apc_fetch($sobjectType);
     }
 
     /**
@@ -55,6 +46,6 @@ class Memcache implements CacheInterface
      */
     public function set(DescribeSObjectResult $result)
     {
-        $this->mc->replace($result->getName(), $result, MEMCACHE_COMPRESSED, $this->ttl);
+        apc_store($result->getName(), $result, $this->ttl);
     }
 }

@@ -42,6 +42,10 @@ class PartnerClient extends Client
     {
         $any = (array)$object->any;
 
+        $type = $object->type;
+
+        $objectDescribe = $this->metadataFactory->describeSobject($object->type);
+
         foreach($any AS $name => $value)
         {
             // atomic fields, parse XML!
@@ -67,7 +71,19 @@ EOT;
                     }
                     else
                     {
-                        $val = (string)$value;
+                        switch($objectDescribe->getField($key)->getType())
+                        {
+                            case 'date':
+                            case 'datetime':
+                                $val = new \DateTime((string)$value);
+                            break;
+                            case 'base64Binary':
+                                $val = base64_decode((string)$val);
+                                break;
+                            default:
+                                $val = (string)$value;
+                                break;
+                        }
                     }
                     $object->$key = $val;
                 }
