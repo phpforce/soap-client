@@ -98,7 +98,22 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
             ->will($this->returnValue($result));
 
         $this->setExpectedException('\Phpforce\SoapClient\Exception\SaveException');
-        $this->getClient($soapClient)->update(array(
+
+
+        $client =
+            $this
+            ->getMockBuilder('Phpforce\SoapClient\EnterpriseClient')
+            ->setConstructorArgs(array($soapClient, 'username', 'password', 'token'))
+            ->setMethods(array('convertFieldForDML'))
+            ->getMock();
+
+        $client
+            ->expects($this->any())
+            ->method('convertFieldForDML')
+            ->will($this->returnArgument(2))
+        ;
+
+        $client->update(array(
             (object) array(
                 'Id'    => 'invalid-id',
                 'Name'  => 'Some name'
@@ -115,7 +130,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
 
     public function testMerge()
     {
-        $soapClient= $this->getSoapClient(array('merge'));
+        $soapClient= $this->getSoapClient(array('merge', 'convertFieldForDML'));
 
         $mergeRequest = new Request\MergeRequest();
         $masterRecord = new \stdClass();
@@ -136,9 +151,22 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $soapClient
             ->expects($this->any())
             ->method('merge')
-            ->will($this->returnValue($result));
+            ->will($this->returnValue($result))
+        ;
 
-        $this->getClient($soapClient)->merge(array($mergeRequest), 'Account');
+        $client =
+            $this
+            ->getMockBuilder('Phpforce\SoapClient\EnterpriseClient')
+            ->setConstructorArgs(array($soapClient, 'username', 'password', 'token'))
+            ->setMethods(array('convertFieldForDML'))->getMock();
+
+        $client
+            ->expects($this->any())
+            ->method('convertFieldForDML')
+            ->will($this->returnArgument(2))
+        ;
+
+        $client->merge(array($mergeRequest), 'Account');
     }
 
     public function testWithEventDispatcher()
@@ -159,12 +187,23 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $response->result = array($saveResult);
 
         $soapClient = $this->getSoapClient(array('create'));
+
         $soapClient
             ->expects($this->once())
             ->method('create')
             ->will($this->returnValue($response));
 
-        $client = $this->getClient($soapClient);
+        $client =
+            $this
+            ->getMockBuilder('Phpforce\SoapClient\EnterpriseClient')
+            ->setConstructorArgs(array($soapClient, 'username', 'password', 'token'))
+            ->setMethods(array('convertFieldForDML'))->getMock();
+
+        $client
+            ->expects($this->any())
+            ->method('convertFieldForDML')
+            ->will($this->returnArgument(2))
+        ;
 
         $dispatcher = $this
             ->getMockBuilder('\Symfony\Component\EventDispatcher\EventDispatcher')

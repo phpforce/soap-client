@@ -53,11 +53,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected $loginResult;
 
     /**
-     * @var MetadataFactory
-     */
-    protected $metadataFactory;
-
-    /**
      * PHP SOAP client for interacting with the Salesforce API
      *
      * @var SoapConnection
@@ -67,7 +62,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     /**
      * Construct Salesforce SOAP client
      *
-     * @param SoapConnection    $connection        SOAP client
+     * @param SoapConnection    $connection    SOAP client
      * @param string            $username          Salesforce username
      * @param string            $password          Salesforce password
      * @param string            $token             Salesforce security token
@@ -78,8 +73,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         $this->username         = $username;
         $this->password         = $password;
         $this->token            = $token;
-
-        $this->metadataFactory  = new MetadataFactory($this);
     }
 
     /**
@@ -147,7 +140,34 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function describeSObjects(array $objects)
     {
-        return $this->call('describeSObjects', $objects);
+        $retVal = array();
+
+        $toFetch = array();
+
+        foreach($objects AS $type)
+        {
+            if($this->getConnection()->getCache()->contains($type))
+            {
+                $retVal[] = $this->getConnection()->getCache()->fetch($type);
+            }
+            else
+            {
+                $toFetch[] = $type;
+            }
+        }
+
+        if(count($toFetch) > 0)
+        {
+            $metadata = $this->call('describeSObjects', $toFetch);
+
+            foreach($metadata AS $metadatum)
+            {
+                $this->getConnection()->getCache()->save($medadatum->getName(), $metadatum, 0);
+
+                $retVal[] = $metadatum;
+            }
+        }
+        return $retVal;
     }
 
     /**
@@ -544,11 +564,13 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      * @param string $sfType
      * @return string
      */
-    protected function convertFieldForDML($sobjectType, $field, $value)
+    protected function convertFieldForDML($objectType, $field, $value)
     {
         // As PHP \DateTime to SOAP dateTime conversion is not done
         // automatically with the SOAP typemap for sObjects, we do it here.
-        switch($this->metadataFactory->describeSobject($sobjectType)->getField($field)->getType())
+        $results = $this->describeSobjects(array($objectType));
+
+        switch($results[0]->getField($field)->getType())
         {
             case 'date':
                 if ($value instanceof \DateTime)
