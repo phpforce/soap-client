@@ -67,7 +67,7 @@ class SoapConnectionFactory
     }
 
     /**
-     * @param string $wsdl Some argument description
+     * @param Wsdl $wsdl
      *
      * @return SoapClient
      */
