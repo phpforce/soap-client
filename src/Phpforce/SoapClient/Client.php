@@ -67,7 +67,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     /**
      * Construct Salesforce SOAP client
      *
-     * @param SoapConnection    $connection    SOAP client
+     * @param SoapConnection    $connection        SOAP client
      * @param string            $username          Salesforce username
      * @param string            $password          Salesforce password
      * @param string            $token             Salesforce security token
@@ -544,11 +544,11 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      * @param string $sfType
      * @return string
      */
-    protected function convertFieldForDML($objectType, $field, $value)
+    protected function convertFieldForDML($sobjectType, $field, $value)
     {
         // As PHP \DateTime to SOAP dateTime conversion is not done
         // automatically with the SOAP typemap for sObjects, we do it here.
-        switch($this->metadataFactory->getMetadata($sobjectType)->getField($field)->getType())
+        switch($this->metadataFactory->describeSobject($sobjectType)->getField($field)->getType())
         {
             case 'date':
                 if ($value instanceof \DateTime)

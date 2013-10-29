@@ -42,7 +42,7 @@ class SoapConnection extends \SoapClient
 
         if(null === $cache)
         {
-            $this->cache = new ArrayCache();
+            $cache = new ArrayCache();
         }
         $this->cache = $cache;
     }

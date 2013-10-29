@@ -2,11 +2,12 @@
 
 namespace Phpforce\SoapClient\Tests;
 
-use Phpforce\SoapClient\Client;
+use Phpforce\SoapClient\EnterpriseClient;
 use Phpforce\SoapClient\Request;
 use Phpforce\SoapClient\Result;
 use Phpforce\SoapClient\Event;
 use Phpforce\SoapClient\Result\LoginResult;
+use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 use \ReflectionClass;
 
 class ClientTest extends \PHPUnit_Framework_TestCase
@@ -50,7 +51,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 ->method('query')
                 ->will($this->returnValue($result));
 
-        $client = new Client($soapClient, 'username', 'password', 'token');
+        $client = new EnterpriseClient($soapClient, 'username', 'password', 'token');
         $result = $client->query('Select Name from Account Limit 1');
         $this->assertInstanceOf('Phpforce\SoapClient\Result\RecordIterator', $result);
         $this->assertEquals(1, $result->count());
@@ -200,14 +201,14 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
 
     protected function getClient(\SoapClient $soapClient)
     {
-        return new Client($soapClient, 'username', 'password', 'token');
+        return new EnterpriseClient($soapClient, 'username', 'password', 'token');
     }
 
     protected function getSoapClient($methods)
     {
-        $soapClient = $this->getMockBuilder('Phpforce\SoapClient\Soap\SoapClient')
+        $soapClient = $this->getMockBuilder('Phpforce\SoapClient\Soap\SoapConnection')
             ->setMethods(array_merge($methods, array('login')))
-            ->setConstructorArgs(array(__DIR__.'/Fixtures/sandbox.enterprise.wsdl.xml'))
+            ->setConstructorArgs(array(new Wsdl(__DIR__.'/Fixtures/sandbox.enterprise.wsdl.xml')))
             ->getMock();
 
         $result = $this->getResultMock(new LoginResult(), array(

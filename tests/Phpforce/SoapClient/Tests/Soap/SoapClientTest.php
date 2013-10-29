@@ -2,6 +2,7 @@
 namespace Phpforce\SoapClient\Tests\Soap;
 
 use Phpforce\SoapClient\Soap\SoapConnection;
+use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 
 class SoapClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -12,7 +13,7 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
     
     protected function getSoapClientPartner()
     {
-        return new SoapConnection(__DIR__.'/../Fixtures/sandbox.partner.wsdl.xml');
+        return new SoapConnection(new Wsdl(__DIR__.'/../Fixtures/sandbox.partner.wsdl.xml'));
     }
 
     public function testGetNamespaceEnterprise()
@@ -22,6 +23,6 @@ class SoapClientTest extends \PHPUnit_Framework_TestCase
 
     protected function getSoapClientEnterprise()
     {
-        return new SoapConnection(__DIR__.'/../Fixtures/sandbox.enterprise.wsdl.xml');
+        return new SoapConnection(new Wsdl(__DIR__.'/../Fixtures/sandbox.enterprise.wsdl.xml'));
     }
 }
