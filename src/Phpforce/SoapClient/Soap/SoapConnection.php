@@ -1,13 +1,16 @@
 <?php
 
 namespace Phpforce\SoapClient\Soap;
+
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Cache\Cache;
 use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 
 /**
  * SOAP client used for the Salesforce API client
  *
  */
-class SoapClient extends \SoapClient
+class SoapConnection extends \SoapClient
 {
     /**
      * SOAP types derived from WSDL
@@ -22,27 +25,37 @@ class SoapClient extends \SoapClient
     protected $wsdl;
 
     /**
-     * @param Wsdl $wsdl
-     * @param array $options
+     * @var Cache
      */
-    public function __construct(Wsdl $wsdl, array $options = array())
+    protected $cache;
+
+    /**
+     * @param Wsdl  $wsdl
+     * @param array $options
+     * @param Cache $cache
+     */
+    public function __construct(Wsdl $wsdl, array $options = array(), Cache $cache = null)
     {
         parent::__construct($wsdl->getPathname(), $options);
 
         $this->wsdl = $wsdl;
+
+        if(null === $cache)
+        {
+            $this->cache = new ArrayCache();
+        }
+        $this->cache = $cache;
     }
 
     /**
-     * @param string $ns
-     * @return string $uri
-     */
-    public function getNamespace($ns)
-    {
-        return $this->wsdl->getNamespace($ns);
-    }
-    
-    /**
      * Retrieve SOAP types from the WSDL and parse them
+     *
+     * Will be removed in further versions in favor of sf
+     * metadata retrieved from describe calls (because of
+     * performance and memory consumption issues in huge
+     * organizations)
+     *
+     * @deprecated
      *
      * @return array    Array of types and their properties
      */
@@ -51,36 +64,41 @@ class SoapClient extends \SoapClient
         if (null === $this->types) {
 
             $soapTypes = $this->__getTypes();
-            foreach ($soapTypes as $soapType) {
+            foreach ($soapTypes as $soapType)
+            {
                 $lines = explode("\n", $soapType);
-                if (!preg_match('/struct (.*) {/', $lines[0], $matches)) {
+                if (!preg_match('/struct (.*) {/', $lines[0], $matches))
+                {
                     continue;
                 }
                 $typeName = $matches[1];
 
-                foreach (array_slice($lines, 1) as $line) {
-                    if ($line == '}') {
+                foreach (array_slice($lines, 1) as $line)
+                {
+                    if ($line == '}')
+                    {
                         continue;
                     }
+
                     preg_match('/\s* (.*) (.*);/', $line, $matches);
+
                     $properties[$matches[2]] = $matches[1];
                 }
                 $this->types[$typeName] = $properties;
             }
         }
-
         return $this->types;
     }
 
     /**
-     * Get a SOAP type’s elements
-     *
-     * @param string $type Object name
-     * @return array       Elements for the type
-     */
-
-    /**
      * Get SOAP elements for a complexType
+     *
+     * Will be removed in further versions in favor of sf
+     * metadata retrieved from describe calls (because of
+     * performance and memory consumption issues in huge
+     * organizations)
+     *
+     * @deprecated
      *
      * @param string $complexType Name of SOAP complexType
      *
@@ -89,13 +107,22 @@ class SoapClient extends \SoapClient
     public function getSoapElements($complexType)
     {
         $types = $this->getSoapTypes();
-        if (isset($types[$complexType])) {
+
+        if (isset($types[$complexType]))
+        {
             return $types[$complexType];
         }
     }
 
     /**
      * Get a SOAP type’s element
+     *
+     * Will be removed in further versions in favor of sf
+     * metadata retrieved from describe calls (because of
+     * performance and memory consumption issues in huge
+     * organizations)
+     *
+     * @deprecated
      *
      * @param string $complexType Name of SOAP complexType
      * @param string $element     Name of element belonging to SOAP complexType
@@ -111,10 +138,18 @@ class SoapClient extends \SoapClient
     }
 
     /**
-     * @return \Phpforce\SoapClient\Soap\WSDL\Wsdl
+     * @return Wsdl
      */
     public function getWsdl()
     {
         return $this->wsdl;
+    }
+
+    /**
+     * @return Cache
+     */
+    public function getCache()
+    {
+        return $this->cache;
     }
 }

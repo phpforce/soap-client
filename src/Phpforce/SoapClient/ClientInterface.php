@@ -2,6 +2,7 @@
 namespace Phpforce\SoapClient;
 
 use Phpforce\SoapClient\Result;
+use Phpforce\SoapClient\Soap\SoapConnection;
 
 /**
  * Salesforce API client interface
@@ -284,5 +285,13 @@ interface ClientInterface
      * @return $object
      */
     public function sfToPhp($object);
+
+    /**
+     * Returns the underlying php´s \SoapClient
+     * instance.
+     *
+     * @return SoapConnection
+     */
+    public function getConnection();
 }
 

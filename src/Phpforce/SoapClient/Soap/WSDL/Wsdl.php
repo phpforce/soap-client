@@ -52,12 +52,12 @@ class Wsdl implements \Serializable
     }
 
     /**
-     * @param string $ns
-     * @return string $uri
+     * @param   string $prefix
+     * @return  string $uri
      */
-    public function getNamespace($ns = '')
+    public function getNamespace($prefix = '')
     {
-        return isset($this->namespaces[$ns]) ? $this->namespaces[$ns] : null;
+        return isset($this->namespaces[$prefix]) ? $this->namespaces[$prefix] : null;
     }
 
     /**

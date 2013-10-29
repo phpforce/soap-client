@@ -1,11 +1,12 @@
 <?php
 namespace Phpforce\SoapClient;
 
-use Phpforce\Metadata\MetadataFactory;
-use Phpforce\SoapClient\Soap\SoapClientFactory;
+use Doctrine\Common\Cache\ArrayCache;
+use Psr\Log\LoggerInterface;
+use Doctrine\Common\Cache\Cache;
+use Phpforce\SoapClient\Soap\SoapConnectionFactory;
 use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 use Phpforce\SoapClient\Plugin\LogPlugin;
-use Psr\Log\LoggerInterface;
 
 /**
  * Salesforce SOAP client builder
@@ -20,12 +21,27 @@ class ClientBuilder
     protected $log;
 
     /**
+     * @var Cache
+     */
+    private $cache;
+
+    /**
+     * @var string
+     */
+    private $username, $password, $token;
+
+    /**
+     * @var Soap\WSDL\Wsdl
+     */
+    private $wsdl;
+
+    /**
      * Construct client builder with required parameters
      *
-     * @param Wsdl   $wsdl     Path to your Salesforce WSDL
-     * @param string $username Your Salesforce username
-     * @param string $password Your Salesforce password
-     * @param string $token    Your Salesforce security token
+     * @param Wsdl   $wsdl              Path to your Salesforce WSDL
+     * @param string $username          Your Salesforce username
+     * @param string $password          Your Salesforce password
+     * @param string $token             Your Salesforce security token
      */
     public function __construct(Wsdl $wsdl, $username, $password, $token)
     {
@@ -33,6 +49,17 @@ class ClientBuilder
         $this->username = $username;
         $this->password = $password;
         $this->token = $token;
+    }
+
+    /**
+     * @param Cache $cache
+     * @return $this
+     */
+    public function withCache(Cache $cache)
+    {
+        $this->cache = $cache;
+
+        return $this;
     }
 
     /**
@@ -52,20 +79,21 @@ class ClientBuilder
     /**
      * Build the Salesforce SOAP client
      *
-     * @return Client
+     * @return ClientInterface
      */
     public function build()
     {
-        $soapClientFactory = new SoapClientFactory();
-        $soapClient = $soapClientFactory->getInstance($this->wsdl);
+        $connectionFactory = new SoapConnectionFactory($this->cache);
+
+        $connection = $connectionFactory->getInstance($this->wsdl);
 
         if($this->wsdl->getTns() === Wsdl::TNS_ENTERPRISE)
         {
-            $client = new EnterpriseClient($soapClient, $this->username, $this->password, $this->token);
+            $client = new EnterpriseClient($connection, $this->username, $this->password, $this->token);
         }
         elseif($this->wsdl->getTns() === Wsdl::TNS_PARTNER)
         {
-            $client = new PartnerClient($soapClient, $this->username, $this->password, $this->token);
+            $client = new PartnerClient($connection, $this->username, $this->password, $this->token);
         }
         else
         {
@@ -75,9 +103,9 @@ class ClientBuilder
         if ($this->log)
         {
             $logPlugin = new LogPlugin($this->log);
+
             $client->getEventDispatcher()->addSubscriber($logPlugin);
         }
-
         return $client;
     }
 }

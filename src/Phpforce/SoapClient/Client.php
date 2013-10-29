@@ -1,11 +1,10 @@
 <?php
 namespace Phpforce\SoapClient;
 
+use Doctrine\Common\Cache\Cache;
 use Phpforce\Common\AbstractHasDispatcher;
-use Phpforce\Metadata\Cache\ApcCache;
-use Phpforce\Metadata\Cache\Memcache;
 use Phpforce\Metadata\MetadataFactory;
-use Phpforce\SoapClient\Soap\SoapClient;
+use Phpforce\SoapClient\Soap\SoapConnection;
 use Phpforce\SoapClient\Result;
 use Phpforce\SoapClient\Event;
 use Phpforce\SoapClient\Exception;
@@ -23,13 +22,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      * @var \SoapHeader
      */
     protected $sessionHeader;
-
-    /**
-     * PHP SOAP client for interacting with the Salesforce API
-     *
-     * @var SoapClient
-     */
-    protected $soapClient;
 
     /**
      * @var string
@@ -66,21 +58,28 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected $metadataFactory;
 
     /**
+     * PHP SOAP client for interacting with the Salesforce API
+     *
+     * @var SoapConnection
+     */
+    private $connection;
+
+    /**
      * Construct Salesforce SOAP client
      *
-     * @param SoapClient $soapClient SOAP client
-     * @param string     $username   Salesforce username
-     * @param string     $password   Salesforce password
-     * @param string     $token      Salesforce security token
+     * @param SoapConnection    $connection    SOAP client
+     * @param string            $username          Salesforce username
+     * @param string            $password          Salesforce password
+     * @param string            $token             Salesforce security token
      */
-    public function __construct(SoapClient $soapClient, $username, $password, $token)
+    public function __construct(SoapConnection $connection, $username, $password, $token)
     {
-        $this->soapClient = $soapClient;
-        $this->username = $username;
-        $this->password = $password;
-        $this->token = $token;
+        $this->connection       = $connection;
+        $this->username         = $username;
+        $this->password         = $password;
+        $this->token            = $token;
 
-        $this->metadataFactory = new MetadataFactory($this, new Memcache());
+        $this->metadataFactory  = new MetadataFactory($this);
     }
 
     /**
@@ -210,7 +209,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function doLogin($username, $password, $token)
     {
-        $result = $this->soapClient->login(
+        $result = $this->connection->login(
             array(
                 'username'  => $username,
                 'password'  => $password.$token
@@ -281,7 +280,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
                 $this->createSObject($mergeRequest->masterRecord, $type),
                 SOAP_ENC_OBJECT,
                 $type,
-                $this->soapClient->getNamespace('tns')
+                $this->connection->getWsdl()->getTns()
             );
         }
 
@@ -450,6 +449,14 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     }
 
     /**
+     * @return \Phpforce\SoapClient\Soap\SoapConnection
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
      * Turn Sobjects into \SoapVars
      *
      * @param array  $objects Array of objects
@@ -487,7 +494,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         {
             throw new \InvalidArgumentException('Missing $type argument.');
         }
-        return new \SoapVar($this->createSObject($object, $type), SOAP_ENC_OBJECT, $type, $this->soapClient->getWsdl()->getTns());
+        return new \SoapVar($this->createSObject($object, $type), SOAP_ENC_OBJECT, $type, $this->connection->getWsdl()->getTns());
     }
 
     /**
@@ -614,14 +621,14 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         $this->init();
 
         // Prepare headers
-        $this->soapClient->__setSoapHeaders($this->getSessionHeader());
+        $this->connection->__setSoapHeaders($this->getSessionHeader());
 
         $requestEvent = new Event\RequestEvent($method, $params);
         $this->dispatch(Events::REQUEST, $requestEvent);
 
         try
         {
-            $result = $this->soapClient->$method($params);
+            $result = $this->connection->$method($params);
         } catch (\SoapFault $soapFault) {
             $faultEvent = new Event\FaultEvent($soapFault, $requestEvent);
             $this->dispatch(Events::FAULT, $faultEvent);
@@ -663,11 +670,12 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected function setSoapHeaders(array $headers)
     {
         $soapHeaderObjects = array();
-        foreach ($headers as $key => $value) {
-            $soapHeaderObjects[] = new \SoapHeader($this->soapClient->getNamespace('tns'), $key, $value);
+        foreach ($headers as $key => $value)
+        {
+            $soapHeaderObjects[] = new \SoapHeader($this->connection->getWsdl()->getTns(), $key, $value);
         }
 
-        $this->soapClient->__setSoapHeaders($soapHeaderObjects);
+        $this->connection->__setSoapHeaders($soapHeaderObjects);
     }
 
     /**
@@ -688,7 +696,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected function setSessionId($sessionId)
     {
         $this->sessionHeader = new \SoapHeader(
-            $this->soapClient->getNamespace('tns'),
+            $this->connection->getWsdl()->getTns(),
             'SessionHeader',
             array(
                 'sessionId' => $sessionId
@@ -714,15 +722,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     protected function setEndpointLocation($location)
     {
-        $this->soapClient->__setLocation($location);
-    }
-
-    /**
-     * @return MetadataFactory
-     */
-    public function getMetadataFactory()
-    {
-        return $this->metadataFactory;
+        $this->connection->__setLocation($location);
     }
 
     /**

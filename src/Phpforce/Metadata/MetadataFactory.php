@@ -8,30 +8,35 @@
 
 namespace Phpforce\Metadata;
 
+use Doctrine\Common\Cache\Cache;
 use Phpforce\SoapClient\ClientInterface;
 use Phpforce\SoapClient\Result\DescribeSObjectResult;
 
+/**
+ * Class MetadataFactory
+ * @package Phpforce\Metadata
+ */
 class MetadataFactory
 {
-    /**
-     * @var Cache\CacheInterface
-     */
-    private $cache;
-
     /**
      * @var ClientInterface
      */
     private $client;
 
     /**
-     * @param ClientInterface $client
-     * @param Cache $cache
+     * @var int $ttl: The metadata cache TTL
      */
-    public function __construct(ClientInterface $client, Cache\CacheInterface $cache)
+    private $ttl;
+
+    /**
+     * @param ClientInterface $client
+     * @param int $ttl
+     */
+    public function __construct(ClientInterface $client, $ttl = 0)
     {
         $this->client = $client;
 
-        $this->cache = $cache;
+        $this->ttl = $ttl;
     }
 
     /**
@@ -48,13 +53,13 @@ class MetadataFactory
 
         foreach($sobjectType AS $type)
         {
-            if(null === ($metadatum = $this->cache->get($type)))
+            if($this->client->getConnection()->getCache()->contains($type))
             {
-                $toFetch[] = $type;
+                $retVal[$type] = $this->client->getConnection()->getCache()->fetch($type);
             }
             else
             {
-                $retVal[$type] = $metadatum;
+                $toFetch[] = $type;
             }
         }
 
@@ -64,7 +69,8 @@ class MetadataFactory
 
             foreach($metadata AS $metadatum)
             {
-                $this->cache->set($metadatum);
+                $this->client->getConnection()->getCache()->save($medadatum->getName(), $metadatum, $this->ttl);
+
                 $retVal[$metadatum->getName()] = $metadatum;
             }
         }

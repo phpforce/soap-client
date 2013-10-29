@@ -1,6 +1,7 @@
 <?php
 namespace Phpforce\SoapClient\Soap;
 
+use Doctrine\Common\Cache\Cache;
 use Phpforce\SoapClient\Soap\TypeConverter;
 use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 
@@ -8,7 +9,7 @@ use Phpforce\SoapClient\Soap\WSDL\Wsdl;
  * Factory to create a \SoapClient properly configured for the Salesforce SOAP
  * client
  */
-class SoapClientFactory
+class SoapConnectionFactory
 {
     /**
      * Default classmap
@@ -53,19 +54,32 @@ class SoapClientFactory
     protected $typeConverters;
 
     /**
+     * @var Cache
+     */
+    private $cache;
+
+    /**
+     * @param Cache $cache
+     */
+    public function __construct(Cache $cache = null)
+    {
+        $this->cache = $cache;
+    }
+
+    /**
      * @param string $wsdl Some argument description
      *
      * @return SoapClient
      */
     public function getInstance(Wsdl $wsdl)
     {
-        return new SoapClient($wsdl, array(
+        return new SoapConnection($wsdl, array(
             'trace'     => 1,
             'features'  => \SOAP_SINGLE_ELEMENT_ARRAYS,
             'classmap'  => $this->classmap,
             'typemap'   => $this->getTypeConverters()->getTypemap(),
             'cache_wsdl' => \WSDL_CACHE_MEMORY
-        ));
+        ), $this->cache);
     }
 
     /**
@@ -86,13 +100,13 @@ class SoapClientFactory
      */
     public function getTypeConverters()
     {
-        if (null === $this->typeConverters) {
-            $this->typeConverters = new TypeConverter\TypeConverterCollection(
-                array(
-                    new TypeConverter\DateTimeTypeConverter(),
-                    new TypeConverter\DateTypeConverter()
-                )
-            );
+        if (null === $this->typeConverters)
+        {
+            $this->typeConverters = new TypeConverter\TypeConverterCollection(array
+            (
+                new TypeConverter\DateTimeTypeConverter(),
+                new TypeConverter\DateTypeConverter()
+            ));
         }
         return $this->typeConverters;
     }

@@ -6,8 +6,9 @@
  * Time: 17:00
  */
 
-namespace Phpforce\Metadata\Cache;
+namespace Phpforce\Metadata;
 
+use Doctrine\Common\Cache\Cache;
 use Phpforce\SoapClient\ClientInterface;
 
 class CacheWarmer
@@ -18,14 +19,27 @@ class CacheWarmer
     private $client;
 
     /**
-     * @param ClientInterface $client
-     * @param CacheInterface $cache
+     * @var Cache
      */
-    public function __construct(ClientInterface $client, CacheInterface $cache)
+    private $cache;
+
+    /**
+     * @var int
+     */
+    private $ttl;
+
+    /**
+     * @param ClientInterface $client
+     * @param Cache $cache
+     * @param int $ttl
+     */
+    public function __construct(ClientInterface $client, Cache $cache, $ttl = 0)
     {
         $this->client = $client;
 
         $this->cache = $cache;
+
+        $this->ttl = $ttl;
     }
 
     public function warmup()
@@ -44,7 +58,7 @@ class CacheWarmer
             {
                 foreach($this->client->describeSObjects($bulk) AS $sobjectDescribe)
                 {
-                    $this->cache->set($sobjectDescribe);
+                    $this->cache->save($sobjectDescribe->getName(), $sobjectDescribe, $this->ttl);
                 }
 
                 $bulk = array();

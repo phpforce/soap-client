@@ -53,9 +53,9 @@ class PartnerClient extends Client
             {
                 $xml = <<<EOT
 <any
-    targetNamespace="{$this->soapClient->getWsdl()->getTns()}"
+    targetNamespace="{$this->getConnection()->getWsdl()->getTns()}"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:sf="{$this->soapClient->getWsdl()->getTns()}">$value</any>
+    xmlns:sf="{$this->getConnection()->getWsdl()->getTns()}">$value</any>
 
 EOT;
                 $element = new \SimpleXMLElement($xml);
