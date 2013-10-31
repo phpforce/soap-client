@@ -130,7 +130,7 @@ EOT;
             }
             else
             {
-                $object->$name = $this->sfToPhp($value);
+                $object->$name = call_user_func($this->getSfToPhpConverter(), $value);
             }
         }
         unset($object->any);
