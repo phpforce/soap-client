@@ -106,6 +106,7 @@ class ClientBuilder
 
             $client->getEventDispatcher()->addSubscriber($logPlugin);
         }
+
         return $client;
     }
 }
