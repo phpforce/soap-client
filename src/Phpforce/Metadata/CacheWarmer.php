@@ -19,29 +19,19 @@ class CacheWarmer
     private $client;
 
     /**
-     * @var Cache
-     */
-    private $cache;
-
-    /**
-     * @var int
-     */
-    private $ttl;
-
-    /**
      * @param ClientInterface $client
      * @param Cache $cache
-     * @param int $ttl
      */
-    public function __construct(ClientInterface $client, Cache $cache, $ttl = 0)
+    public function __construct(ClientInterface $client)
     {
         $this->client = $client;
-
-        $this->cache = $cache;
-
-        $this->ttl = $ttl;
     }
 
+    /**
+     * Fills the cache with all sobject describe
+     * data for each (custom) object available at
+     * the organization.
+     */
     public function warmup()
     {
         $globalSobjectDescribes = $this->client->describeGlobal()->sobjects;
@@ -58,14 +48,13 @@ class CacheWarmer
             {
                 foreach($this->client->describeSObjects($bulk) AS $sobjectDescribe)
                 {
-                    $this->cache->save($sobjectDescribe->getName(), $sobjectDescribe, $this->ttl);
+                    $this->client->getConnection()->getCache()->save($sobjectDescribe->getName(), $sobjectDescribe);
                 }
 
                 $bulk = array();
                 $n = 0;
                 continue;
             }
-
             $n ++;
 
             if(false === next($globalSobjectDescribes))
