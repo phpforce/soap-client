@@ -6,7 +6,7 @@
  * Time: 17:00
  */
 
-namespace Phpforce\Metadata;
+namespace Phpforce\SoapClient\Metadata;
 
 use Doctrine\Common\Cache\Cache;
 use Phpforce\SoapClient\ClientInterface;
@@ -38,10 +38,15 @@ class CacheWarmer
      * Fills the cache with all sobject describe
      * data for each (custom) object available at
      * the organization.
+     *
+     * @return void
      */
     public function warmup()
     {
-        $this->client->getConnection()->getCache()->delete('__global_describe');
+        if($this->force)
+        {
+            $this->client->getConnection()->getCache()->delete('__global_describe');
+        }
 
         $globalSobjectDescribes = $this->client->describeGlobal()->sobjects;
 
