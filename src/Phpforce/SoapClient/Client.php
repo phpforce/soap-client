@@ -158,11 +158,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
 
         if(count($toFetch) > 0)
         {
-            $metadata = $this->call('describeSObjects', $toFetch);
-
-            foreach($metadata AS $metadatum)
+            foreach($this->call('describeSObjects', $toFetch) AS $metadatum)
             {
-                $this->getConnection()->getCache()->save($medadatum->getName(), $metadatum, 0);
+                $this->getConnection()->getCache()->save($metadatum->getName(), $metadatum, 0);
 
                 $retVal[] = $metadatum;
             }
