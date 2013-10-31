@@ -281,12 +281,6 @@ interface ClientInterface
     public function setPassword($userId, $password);
 
     /**
-     * @param $object
-     * @return $object
-     */
-    public function sfToPhp($object);
-
-    /**
      * Returns the underlying php´s \SoapClient
      * instance.
      *

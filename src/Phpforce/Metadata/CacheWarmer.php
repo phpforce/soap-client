@@ -19,12 +19,19 @@ class CacheWarmer
     private $client;
 
     /**
+     * @var bool
+     */
+    private $force;
+
+    /**
      * @param ClientInterface $client
      * @param Cache $cache
      */
-    public function __construct(ClientInterface $client)
+    public function __construct(ClientInterface $client, $force = false)
     {
         $this->client = $client;
+
+        $this->force = $force;
     }
 
     /**
@@ -34,6 +41,8 @@ class CacheWarmer
      */
     public function warmup()
     {
+        $this->client->getConnection()->getCache()->delete('__global_describe');
+
         $globalSobjectDescribes = $this->client->describeGlobal()->sobjects;
 
         $bulk = array();
@@ -42,17 +51,24 @@ class CacheWarmer
 
         while(true)
         {
-            $bulk[] = current($globalSobjectDescribes)->name;
+            $currenttype = current($globalSobjectDescribes)->name;
+
+            // DELETE EXISTING CACHE ENTRIES
+            if($this->force)
+            {
+                $this->client->getConnection()->getCache()->delete($currenttype);
+            }
+
+            $bulk[] = $currenttype;
 
             if($n === 99)
             {
-                foreach($this->client->describeSObjects($bulk) AS $sobjectDescribe)
-                {
-                    $this->client->getConnection()->getCache()->save($sobjectDescribe->getName(), $sobjectDescribe);
-                }
+                // FILLS CACHE
+                $this->client->describeSObjects($bulk);
 
                 $bulk = array();
                 $n = 0;
+
                 continue;
             }
             $n ++;

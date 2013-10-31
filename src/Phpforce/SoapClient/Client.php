@@ -132,7 +132,15 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function describeGlobal()
     {
-        return $this->call('describeGlobal');
+        if($this->getConnection()->getCache()->contains('__global_describe'))
+        {
+            return $this->getConnection()->getCache()->fetch('__global_describe');
+        }
+        $global = $this->call('describeGlobal');
+
+        $this->getConnection()->getCache()->save('__global_describe', $global);
+
+        return $global;
     }
 
     /**
@@ -160,7 +168,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         {
             foreach($this->call('describeSObjects', $toFetch) AS $metadatum)
             {
-                $this->getConnection()->getCache()->save($metadatum->getName(), $metadatum, 0);
+                $this->getConnection()->getCache()->save($metadatum->getName(), $metadatum);
 
                 $retVal[] = $metadatum;
             }
@@ -337,7 +345,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
             'queryAll',
             array('queryString' => $query)
         );
-
         return new Result\RecordIterator($this, $result);
     }
 
@@ -744,25 +751,5 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     {
         $this->connection->__setLocation($location);
     }
-
-    /**
-     * Fix the fieldsToNull property for sObjects
-     *
-     * @param \SoapVar $object
-     * @return \SoapVar
-     */
-    /*protected function fixFieldsToNullXml(\SoapVar $object)
-    {
-        if (isset($object->enc_value->fieldsToNull)
-            && is_array($object->enc_value->fieldsToNull)
-            && count($object->enc_value->fieldsToNull) > 0)
-        {
-            $xml = '';
-            foreach ($object->enc_value->fieldsToNull as $fieldToNull) {
-                $xml .= '<fieldsToNull>' . $fieldToNull . '</fieldsToNull>';
-            }
-            return new \SoapVar(new \SoapVar($xml, XSD_ANYXML), SOAP_ENC_ARRAY);
-        }
-    }*/
 }
 

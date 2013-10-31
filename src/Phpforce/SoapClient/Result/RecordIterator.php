@@ -1,7 +1,7 @@
 <?php
 namespace Phpforce\SoapClient\Result;
 
-use Phpforce\SoapClient\Client;
+use Phpforce\SoapClient\ClientInterface;
 
 /**
  * Iterator that contains records retrieved from the Salesforce API
@@ -17,7 +17,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     /**
      * Salesforce client
      *
-     * @var Client
+     * @var ClientInterface
      */
     protected $client;
 
@@ -43,16 +43,24 @@ class RecordIterator implements \SeekableIterator, \Countable
     protected $current;
 
     /**
+     * @var callable|null
+     */
+    protected $sfToPhpConverter;
+
+    /**
      * Construct a record iterator
      *
-     * @param client $client
+     * @param ClientInterface $client
      * @param string $result
+     * @param null|callable $sfToPhpConverter
      */
-    public function __construct(Client $client, QueryResult $result)
+    public function __construct(ClientInterface $client, QueryResult $result, $sfToPhpConverter = null)
     {
         $this->client = $client;
 
         $this->setQueryResult($result);
+
+        $this->sfToPhpConverter = $sfToPhpConverter;
     }
 
     /**
@@ -76,8 +84,12 @@ class RecordIterator implements \SeekableIterator, \Countable
     {
         if (($current = $this->queryResult->getRecord($pointer)))
         {
-            $this->current = $this->client->sfToPhp($current);
+            $this->current = $current;
 
+            if(null !== $this->sfToPhpConverter)
+            {
+                $this->current = call_user_func($this->sfToPhpConverter, $this->current);
+            }
             return $this->current;
         }
 
@@ -220,5 +232,13 @@ class RecordIterator implements \SeekableIterator, \Countable
     public function getQueryResult()
     {
         return $this->queryResult;
+    }
+
+    /**
+     * @param callable|null $sfToPhpConverter
+     */
+    public function setSfToPhpConverter($sfToPhpConverter)
+    {
+        $this->sfToPhpConverter = $sfToPhpConverter;
     }
 }
