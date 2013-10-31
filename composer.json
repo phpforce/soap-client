@@ -22,7 +22,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Phpforce\\SoapClient": "src/Phpforce/",
+            "Phpforce\\SoapClient": "src/Phpforce/"
         }
     },
     "minimum-stability": "stable"
