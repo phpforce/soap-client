@@ -1,6 +1,7 @@
 <?php
 namespace Phpforce\SoapClient;
 
+use Codemitte\ForceToolkit\Soap\Mapping\Base\LoginResult;
 use Doctrine\Common\Cache\Cache;
 use Phpforce\Common\AbstractHasDispatcher;
 use Phpforce\Metadata\MetadataFactory;
@@ -8,6 +9,7 @@ use Phpforce\SoapClient\Soap\SoapConnection;
 use Phpforce\SoapClient\Result;
 use Phpforce\SoapClient\Event;
 use Phpforce\SoapClient\Exception;
+use Phpforce\SoapClient\Soap\SoapConnectionFactory;
 
 /**
  * A client for the Salesforce SOAP API
@@ -22,28 +24,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      * @var \SoapHeader
      */
     protected $sessionHeader;
-
-    /**
-     * @var string
-     */
-    protected $username;
-
-    /**
-     * @var string
-     */
-    protected $password;
-
-    /**
-     * @var string
-     */
-    protected $token;
-
-    /**
-     * Type collection as derived from the WSDL
-     *
-     * @var array
-     */
-    protected $types = array();
 
     /**
      * Login result
@@ -63,16 +43,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      * Construct Salesforce SOAP client
      *
      * @param SoapConnection    $connection    SOAP client
-     * @param string            $username          Salesforce username
-     * @param string            $password          Salesforce password
-     * @param string            $token             Salesforce security token
      */
     public function __construct(SoapConnection $connection, $username, $password, $token)
     {
-        $this->connection       = $connection;
-        $this->username         = $username;
-        $this->password         = $password;
-        $this->token            = $token;
+        $this->setConnection($connection);
     }
 
     /**
@@ -233,25 +207,17 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     /**
      * {@inheritdoc}
      */
-    public function doLogin($username, $password, $token)
+    public function login($username, $password, $token)
     {
-        $result = $this->connection->login(
+        $this->loginResult = $this->connection->login
+        (
             array(
                 'username'  => $username,
                 'password'  => $password.$token
             )
-        );
-        $this->setLoginResult($result->result);
+        )->result;
 
-        return $result->result;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function login($username, $password, $token)
-    {
-        return $this->doLogin($username, $password, $token);
+        return $this->loginResult;
     }
 
     /**
@@ -261,10 +227,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function getLoginResult()
     {
-        if (null === $this->loginResult)
-        {
-            $this->login($this->username, $this->password, $this->token);
-        }
         return $this->loginResult;
     }
 
@@ -274,8 +236,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     public function logout()
     {
         $this->call('logout');
-        $this->sessionHeader = null;
-        $this->setSessionId(null);
+        $this->loginResult = null;
     }
 
     /**
@@ -283,26 +244,32 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function merge(array $mergeRequests, $type)
     {
-        foreach ($mergeRequests as $mergeRequest) {
-            if (!($mergeRequest instanceof Request\MergeRequest)) {
+        foreach ($mergeRequests as $mergeRequest)
+        {
+            if ( ! ($mergeRequest instanceof Request\MergeRequest))
+            {
                 throw new \InvalidArgumentException(
                     'Each merge request must be an instance of MergeRequest'
                 );
             }
 
-            if (!$mergeRequest->masterRecord || !is_object($mergeRequest->masterRecord)) {
+            if ( ! $mergeRequest->masterRecord || !is_object($mergeRequest->masterRecord))
+            {
                 throw new \InvalidArgumentException('masterRecord must be an object');
             }
 
-            if (!$mergeRequest->masterRecord->Id) {
+            if ( ! $mergeRequest->masterRecord->Id)
+            {
                 throw new \InvalidArgumentException('Id for masterRecord must be set');
             }
 
-            if (!is_array($mergeRequest->recordToMergeIds)) {
+            if ( ! is_array($mergeRequest->recordToMergeIds))
+            {
                 throw new \InvalidArgumentException('recordToMergeIds must be an array');
             }
 
-            $mergeRequest->masterRecord = new \SoapVar(
+            $mergeRequest->masterRecord = new \SoapVar
+            (
                 $this->createSObject($mergeRequest->masterRecord, $type),
                 SOAP_ENC_OBJECT,
                 $type,
@@ -474,11 +441,41 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     }
 
     /**
-     * @return \Phpforce\SoapClient\Soap\SoapConnection
+     * {@inheritdoc}
      */
     public function getConnection()
     {
         return $this->connection;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setConnection(SoapConnection $connection)
+    {
+        $this->connection = $connection;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function serialize()
+    {
+        return serialize(array
+        (
+            'loginResult' => $this->loginResult
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function unserialize($serialized)
+    {
+        $unserialized = unserialize($serialized);
+
+        $this->loginResult      = $unserialized['loginResult'];
     }
 
     /**
@@ -645,48 +642,39 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     protected function call($method, array $params = array())
     {
-        $this->init();
-
         // Prepare headers
         $this->connection->__setSoapHeaders($this->getSessionHeader());
 
         $requestEvent = new Event\RequestEvent($method, $params);
+
         $this->dispatch(Events::REQUEST, $requestEvent);
 
         try
         {
             $result = $this->connection->$method($params);
-        } catch (\SoapFault $soapFault) {
+        }
+        catch (\SoapFault $soapFault)
+        {
             $faultEvent = new Event\FaultEvent($soapFault, $requestEvent);
+
             $this->dispatch(Events::FAULT, $faultEvent);
 
             throw $soapFault;
         }
         
         // No result e.g. for logout, delete with empty array
-        if (!isset($result->result)) {
+        if ( ! isset($result->result))
+        {
             return array();
         }
 
-        $this->dispatch(
+        $this->dispatch
+        (
             Events::RESPONSE,
             new Event\ResponseEvent($requestEvent, $result->result)
         );
 
         return $result->result;
-    }
-
-    /**
-     * Initialize connection
-     *
-     */
-    protected function init()
-    {
-        // If there’s no session header yet, this means we haven’t yet logged in
-        if ( ! $this->getSessionHeader())
-        {
-            $this->doLogin($this->username, $this->password, $this->token);
-        }
     }
 
     /**
@@ -697,48 +685,41 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected function setSoapHeaders(array $headers)
     {
         $soapHeaderObjects = array();
+
         foreach ($headers as $key => $value)
         {
             $soapHeaderObjects[] = new \SoapHeader($this->connection->getWsdl()->getTns(), $key, $value);
         }
-
         $this->connection->__setSoapHeaders($soapHeaderObjects);
     }
 
     /**
-     * Get session header
+     * Creates the session header if a valid login result
+     * is present.
      *
-     * @return \SoapHeader
+     * @return \SoapHeader|null
      */
     protected function getSessionHeader()
     {
+        if(null === $this->loginResult)
+        {
+            $this->sessionHeader = null;
+        }
+        elseif(null === $this->sessionHeader)
+        {
+            // ASSUME SESSION HEADER IS NEW; SO LOGIN RESULT IS FRESH ALSO
+            $this->setEndpointLocation($this->loginResult->getServerUrl());
+
+            $this->sessionHeader = new \SoapHeader
+            (
+                $this->connection->getWsdl()->getTns(),
+                'SessionHeader',
+                array(
+                    'sessionId' => $this->loginResult->getSessionId()
+                )
+            );
+        }
         return $this->sessionHeader;
-    }
-
-    /**
-     * Save session id to SOAP headers to be used on subsequent requests
-     *
-     * @param string $sessionId
-     */
-    protected function setSessionId($sessionId)
-    {
-        $this->sessionHeader = new \SoapHeader(
-            $this->connection->getWsdl()->getTns(),
-            'SessionHeader',
-            array(
-                'sessionId' => $sessionId
-            )
-        );
-    }
-
-    /**
-     * @param Result\LoginResult $loginResult
-     */
-    protected function setLoginResult(Result\LoginResult $loginResult)
-    {
-        $this->loginResult = $loginResult;
-        $this->setEndpointLocation($loginResult->getServerUrl());
-        $this->setSessionId($loginResult->getSessionId());
     }
 
     /**
@@ -752,4 +733,3 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         $this->connection->__setLocation($location);
     }
 }
-

@@ -81,7 +81,7 @@ class Wsdl implements \Serializable
      */
     public function serialize()
     {
-        serialize(array(
+        return serialize(array(
             'namespaces' => $this->namespaces,
             'tns' => $this->tns,
             'wsdl' => $this->wsdl

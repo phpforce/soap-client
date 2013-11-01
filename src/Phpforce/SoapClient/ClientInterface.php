@@ -9,7 +9,7 @@ use Phpforce\SoapClient\Soap\SoapConnection;
  *
  * @author David de Boer <david@ddeboer.nl>
  */
-interface ClientInterface
+interface ClientInterface extends \Serializable
 {
     /**
      * Converts a Lead into an Account, Contact, or (optionally) an Opportunity
@@ -287,5 +287,15 @@ interface ClientInterface
      * @return SoapConnection
      */
     public function getConnection();
+
+    /**
+     * (Re-)sets the clients \SoapClient connection
+     * instance. Mainly used in deserialization of
+     * client instances.
+     *
+     * @param SoapConnection $connection
+     * @return void
+     */
+    public function setConnection(SoapConnection $connection);
 }
 
