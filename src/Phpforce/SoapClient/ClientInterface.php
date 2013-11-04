@@ -169,7 +169,7 @@ interface ClientInterface extends \Serializable
      *
      * @param string $query
      *
-     * @return Result\QueryResult[]
+     * @return Result\RecordIterator[]
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_queryall.htm
      */
     public function queryAll($query);
@@ -179,7 +179,7 @@ interface ClientInterface extends \Serializable
      *
      * @param string $queryLocator
      *
-     * @return Result\QueryResult
+     * @return Result\RecordIterator
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_querymore.htm
      */
     public function queryMore($queryLocator);

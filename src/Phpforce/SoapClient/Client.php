@@ -296,11 +296,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function query($query)
     {
-        $result = $this->call(
+        return new Result\RecordIterator($this, $this->call(
             'query',
             array('queryString' => $query)
-        );
-        return new Result\RecordIterator($this, $result);
+        ));
     }
 
     /**
@@ -308,11 +307,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function queryAll($query)
     {
-        $result = $this->call(
+        return new Result\RecordIterator($this, $this->call(
             'queryAll',
             array('queryString' => $query)
-        );
-        return new Result\RecordIterator($this, $result);
+        ));
     }
 
     /**
@@ -320,10 +318,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function queryMore($queryLocator)
     {
-        return $this->call(
+        return new Result\RecordIterator($this, $this->call(
             'queryMore',
             array('queryLocator' => $queryLocator)
-        );
+        ));
     }
 
     /**

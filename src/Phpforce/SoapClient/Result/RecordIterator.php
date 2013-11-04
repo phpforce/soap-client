@@ -12,7 +12,7 @@ use Phpforce\SoapClient\ClientInterface;
  *
  * @author David de Boer <david@ddeboer.nl>
  */
-class RecordIterator implements \SeekableIterator, \Countable, \ArrayAccess
+class RecordIterator implements \SeekableIterator, \Countable
 {
     /**
      * Salesforce client
@@ -169,8 +169,7 @@ class RecordIterator implements \SeekableIterator, \Countable, \ArrayAccess
      */
     protected function queryMore()
     {
-        $result = $this->client->queryMore($this->queryResult->getQueryLocator());
-        $this->setQueryResult($result);
+        $this->setQueryResult($this->client->queryMore($this->queryResult->getQueryLocator())->getQueryResult());
         $this->rewind();
     }
 
@@ -240,41 +239,5 @@ class RecordIterator implements \SeekableIterator, \Countable, \ArrayAccess
     public function setSfToPhpConverter($sfToPhpConverter)
     {
         $this->sfToPhpConverter = $sfToPhpConverter;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetExists($offset)
-    {
-        return null != $this->getObjectAt($this->pointer);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetGet($offset)
-    {
-        if(null === ($obj = $this->getObjectAt($offset)))
-        {
-            throw new \OutOfRangeException(sprintf('Undefined offset: %u', $offset));
-        }
-        return $obj;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetSet($offset, $value)
-    {
-        throw new \BadMethodCallException('Trying to set immutable index');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function offsetUnset($offset)
-    {
-        throw new \BadMethodCallException('Trying to unset immutable index');
     }
 }
