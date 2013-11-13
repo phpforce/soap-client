@@ -2,6 +2,7 @@
 
 namespace Phpforce\SoapClient\Tests;
 
+use Doctrine\Common\Cache\ArrayCache;
 use Phpforce\SoapClient\EnterpriseClient;
 use Phpforce\SoapClient\Request;
 use Phpforce\SoapClient\Result;
@@ -51,7 +52,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 ->method('query')
                 ->will($this->returnValue($result));
 
-        $client = new EnterpriseClient($soapClient, 'username', 'password', 'token');
+        $client = new EnterpriseClient($soapClient, new ArrayCache());
         $result = $client->query('Select Name from Account Limit 1');
         $this->assertInstanceOf('Phpforce\SoapClient\Result\RecordIterator', $result);
         $this->assertEquals(1, $result->count());
@@ -103,7 +104,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $client =
             $this
             ->getMockBuilder('Phpforce\SoapClient\EnterpriseClient')
-            ->setConstructorArgs(array($soapClient, 'username', 'password', 'token'))
+            ->setConstructorArgs(array($soapClient, new ArrayCache()))
             ->setMethods(array('convertFieldForDML'))
             ->getMock();
 
@@ -157,7 +158,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $client =
             $this
             ->getMockBuilder('Phpforce\SoapClient\EnterpriseClient')
-            ->setConstructorArgs(array($soapClient, 'username', 'password', 'token'))
+            ->setConstructorArgs(array($soapClient, new ArrayCache()))
             ->setMethods(array('convertFieldForDML'))->getMock();
 
         $client
@@ -196,7 +197,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
         $client =
             $this
             ->getMockBuilder('Phpforce\SoapClient\EnterpriseClient')
-            ->setConstructorArgs(array($soapClient, 'username', 'password', 'token'))
+            ->setConstructorArgs(array($soapClient, new ArrayCache()))
             ->setMethods(array('convertFieldForDML'))->getMock();
 
         $client
@@ -240,7 +241,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
 
     protected function getClient(\SoapClient $soapClient)
     {
-        return new EnterpriseClient($soapClient, 'username', 'password', 'token');
+        return new EnterpriseClient($soapClient, new ArrayCache());
     }
 
     protected function getSoapClient($methods)
