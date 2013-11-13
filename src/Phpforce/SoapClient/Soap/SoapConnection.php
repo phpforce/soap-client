@@ -2,8 +2,6 @@
 
 namespace Phpforce\SoapClient\Soap;
 
-use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Cache\Cache;
 use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 
 /**
@@ -18,26 +16,14 @@ class SoapConnection extends \SoapClient
     protected $wsdl;
 
     /**
-     * @var Cache
-     */
-    protected $cache;
-
-    /**
      * @param Wsdl  $wsdl
      * @param array $options
-     * @param Cache $cache
      */
-    public function __construct(Wsdl $wsdl, array $options = array(), Cache $cache = null)
+    public function __construct(Wsdl $wsdl, array $options = array())
     {
         parent::__construct($wsdl->getPathname(), $options);
 
         $this->wsdl = $wsdl;
-
-        if(null === $cache)
-        {
-            $cache = new ArrayCache();
-        }
-        $this->cache = $cache;
     }
 
     /**
@@ -46,13 +32,5 @@ class SoapConnection extends \SoapClient
     public function getWsdl()
     {
         return $this->wsdl;
-    }
-
-    /**
-     * @return Cache
-     */
-    public function getCache()
-    {
-        return $this->cache;
     }
 }

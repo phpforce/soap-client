@@ -9,7 +9,7 @@ use Phpforce\SoapClient\Soap\SoapConnection;
  *
  * @author David de Boer <david@ddeboer.nl>
  */
-interface ClientInterface extends \Serializable
+interface ClientInterface
 {
     /**
      * Converts a Lead into an Account, Contact, or (optionally) an Opportunity
@@ -169,7 +169,7 @@ interface ClientInterface extends \Serializable
      *
      * @param string $query
      *
-     * @return Result\RecordIterator[]
+     * @return Result\RecordIterator
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_queryall.htm
      */
     public function queryAll($query);
@@ -287,15 +287,5 @@ interface ClientInterface extends \Serializable
      * @return SoapConnection
      */
     public function getConnection();
-
-    /**
-     * (Re-)sets the clients \SoapClient connection
-     * instance. Mainly used in deserialization of
-     * client instances.
-     *
-     * @param SoapConnection $connection
-     * @return void
-     */
-    public function setConnection(SoapConnection $connection);
 }
 

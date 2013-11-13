@@ -8,6 +8,9 @@ class SaveException extends \Exception implements \IteratorAggregate, \Countable
 {
     protected $results = array();
 
+    /**
+     * @param mixed $result
+     */
     public function add($result)
     {
         $this->results[] = $result;
@@ -19,16 +22,23 @@ class SaveException extends \Exception implements \IteratorAggregate, \Countable
                 if (count($errors) > 0) {
                     return $errors[0]->getMessage();
                 }
+                return null;
             }, $this->results
             )
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getIterator()
     {
         return new \ArrayIterator($this->results);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function count()
     {
         return count($this->results);

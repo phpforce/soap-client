@@ -2,16 +2,17 @@
 
 namespace Phpforce\SoapClient;
 
-use Phpforce\SoapClient\Response\SaveResult;
+use Phpforce\SoapClient\Result\SaveResult;
 
 interface BulkSaverInterface
 {
     /**
      * Save a record in bulk
      *
-     * @param object $record
-     * @param string $objectType  The record type, e.g., Account
-     * @param string $matchField  Optional match field for upserts
+     * @param $object
+     * @param string $objectType The record type, e.g., Account
+     * @param string $matchField Optional match field for upserts
+     *
      * @return BulkSaver
      */
     function save($object, $objectType, $matchField = null);

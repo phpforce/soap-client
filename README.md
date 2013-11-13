@@ -48,14 +48,14 @@ Usage
 Use the client to query and manipulate your organisation’s Salesforce data. First construct a client using the builder:
 
 ```php
-$builder = new \Phpforce\SoapClient\ClientBuilder(
+$builder = new \Phpforce\SoapClient\ClientFactory(
   '/path/to/your/salesforce/wsdl/sandbox.enterprise.wsdl.xml'
   'username',
   'password',
   'security_token'
 );
 
-$client = $builder->build();
+$client = $builder->getInstance();
 ```
 
 ### SOQL queries
@@ -118,14 +118,14 @@ To enable logging for the client, call `withLog()` on the builder. For instance 
 $log = new \Monolog\Logger('name');  
 $log->pushHandler(new \Monolog\Handler\StreamHandler('path/to/your.log'));
 
-$builder = new \Phpforce\SoapClient\ClientBuilder(
+$builder = new \Phpforce\SoapClient\ClientFactory(
   '/path/to/your/salesforce/wsdl/sandbox.enterprise.wsdl.xml'
   'username',
   'password',
   'security_token'
 );
 $client = $builder->withLog($log)
-  ->build();
+  ->getInstance();
 ```
 
 All requests to the Salesforce API, as well as the responses and any errors that it returns, will now be logged.

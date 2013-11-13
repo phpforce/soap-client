@@ -48,11 +48,9 @@ class RecordIterator implements \SeekableIterator, \Countable
     protected $sfToPhpConverter;
 
     /**
-     * Construct a record iterator
-     *
      * @param ClientInterface $client
-     * @param string $result
-     * @param null|callable $sfToPhpConverter
+     * @param QueryResult $result
+     * @param callable|null $sfToPhpConverter
      */
     public function __construct(ClientInterface $client, QueryResult $result, $sfToPhpConverter = null)
     {
@@ -65,7 +63,6 @@ class RecordIterator implements \SeekableIterator, \Countable
 
     /**
      * {@inheritdoc}
-     * @return object
      */
     public function current()
     {
@@ -78,7 +75,7 @@ class RecordIterator implements \SeekableIterator, \Countable
      *
      * @param int $pointer
      *
-     * @return object
+     * @return SObject
      */
     protected function getObjectAt($pointer)
     {
@@ -101,12 +98,11 @@ class RecordIterator implements \SeekableIterator, \Countable
 
             return $this->getObjectAt($this->pointer);
         }
+        return null;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return int|null
      */
     public function key()
     {
@@ -131,8 +127,6 @@ class RecordIterator implements \SeekableIterator, \Countable
 
     /**
      * {@inheritdoc}
-     *
-     * @return boolean
      */
     public function valid()
     {
@@ -142,7 +136,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     /**
      * Get first object
      *
-     * @return object
+     * @return SObject
      */
     public function first()
     {
@@ -165,7 +159,6 @@ class RecordIterator implements \SeekableIterator, \Countable
 
     /**
      * Query Salesforce for more records and rewind iterator
-     *
      */
     protected function queryMore()
     {
@@ -174,9 +167,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     }
 
     /**
-     * Get total number of records returned from Salesforce
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function count()
     {
@@ -184,7 +175,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     }
 
     /**
-     * @param int $position
+     * {@inheritdoc}
      */
     public function seek($position)
     {

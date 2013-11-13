@@ -1,15 +1,12 @@
 <?php
 namespace Phpforce\SoapClient;
 
-use Codemitte\ForceToolkit\Soap\Mapping\Base\LoginResult;
 use Doctrine\Common\Cache\Cache;
 use Phpforce\Common\AbstractHasDispatcher;
-use Phpforce\Metadata\MetadataFactory;
-use Phpforce\SoapClient\Soap\SoapConnection;
 use Phpforce\SoapClient\Result;
 use Phpforce\SoapClient\Event;
 use Phpforce\SoapClient\Exception;
-use Phpforce\SoapClient\Soap\SoapConnectionFactory;
+use Phpforce\SoapClient\Soap\SoapConnection;
 
 /**
  * A client for the Salesforce SOAP API
@@ -19,34 +16,38 @@ use Phpforce\SoapClient\Soap\SoapConnectionFactory;
 abstract class Client extends AbstractHasDispatcher implements ClientInterface
 {
     /**
+     * @var Cache
+     */
+    protected $cache;
+
+    /**
+     * @var SoapConnection
+     */
+    protected $connection;
+
+    /**
      * SOAP session header
      *
      * @var \SoapHeader
      */
-    protected $sessionHeader;
+    private $sessionHeader;
 
     /**
      * Login result
      *
      * @var Result\LoginResult
      */
-    protected $loginResult;
+    private $loginResult;
 
     /**
-     * PHP SOAP client for interacting with the Salesforce API
-     *
-     * @var SoapConnection
+     * @param SoapConnection $connection
+     * @param Cache $cache
      */
-    private $connection;
-
-    /**
-     * Construct Salesforce SOAP client
-     *
-     * @param SoapConnection    $connection    SOAP client
-     */
-    public function __construct(SoapConnection $connection, $username, $password, $token)
+    public function __construct(SoapConnection $connection, Cache $cache)
     {
-        $this->setConnection($connection);
+        $this->connection = $connection;
+
+        $this->cache      = $cache;
     }
 
     /**
@@ -106,13 +107,13 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function describeGlobal()
     {
-        if($this->getConnection()->getCache()->contains('__global_describe'))
+        if($this->cache->contains('__global_describe'))
         {
-            return $this->getConnection()->getCache()->fetch('__global_describe');
+            return $this->cache->fetch('__global_describe');
         }
         $global = $this->call('describeGlobal');
 
-        $this->getConnection()->getCache()->save('__global_describe', $global);
+        $this->cache->save('__global_describe', $global);
 
         return $global;
     }
@@ -128,9 +129,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
 
         foreach($objects AS $type)
         {
-            if($this->getConnection()->getCache()->contains($type))
+            if($this->cache->contains($type))
             {
-                $retVal[] = $this->getConnection()->getCache()->fetch($type);
+                $retVal[] = $this->cache->fetch($type);
             }
             else
             {
@@ -142,7 +143,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         {
             foreach($this->call('describeSObjects', $toFetch) AS $metadatum)
             {
-                $this->getConnection()->getCache()->save($metadatum->getName(), $metadatum);
+                $this->cache->save($metadatum->getName(), $metadatum);
 
                 $retVal[] = $metadatum;
             }
@@ -209,13 +210,14 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function login($username, $password, $token)
     {
-        $this->loginResult = $this->connection->login
+        $this->loginResult = $this->getConnection()->login
         (
             array(
                 'username'  => $username,
                 'password'  => $password.$token
             )
         )->result;
+        $this->cache->save('__loginResult', $this->loginResult);
 
         return $this->loginResult;
     }
@@ -227,6 +229,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function getLoginResult()
     {
+        if(null === $this->loginResult && $this->cache->contains('__loginResult'))
+        {
+            $this->loginResult = $this->cache->fetch('__loginResult');
+        }
         return $this->loginResult;
     }
 
@@ -237,6 +243,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     {
         $this->call('logout');
         $this->loginResult = null;
+        $this->cache->delete('__loginResult');
     }
 
     /**
@@ -273,7 +280,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
                 $this->createSObject($mergeRequest->masterRecord, $type),
                 SOAP_ENC_OBJECT,
                 $type,
-                $this->connection->getWsdl()->getTns()
+                $this->getConnection()->getWsdl()->getTns()
             );
         }
 
@@ -296,10 +303,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function query($query)
     {
-        return new Result\RecordIterator($this, $this->call(
-            'query',
-            array('queryString' => $query)
-        ));
+        return new Result\RecordIterator($this, $this->call('query', array(
+            'queryString' => $query
+        )));
     }
 
     /**
@@ -307,10 +313,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function queryAll($query)
     {
-        return new Result\RecordIterator($this, $this->call(
-            'queryAll',
-            array('queryString' => $query)
-        ));
+        return new Result\RecordIterator($this, $this->call('queryAll', array(
+            'queryString' => $query
+        )));
     }
 
     /**
@@ -318,10 +323,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function queryMore($queryLocator)
     {
-        return new Result\RecordIterator($this, $this->call(
-            'queryMore',
-            array('queryLocator' => $queryLocator)
-        ));
+        return new Result\RecordIterator($this, $this->call('queryMore', array(
+            'queryLocator' => $queryLocator
+        )));
     }
 
     /**
@@ -447,36 +451,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function setConnection(SoapConnection $connection)
-    {
-        $this->connection = $connection;
-    }
-
-
-    /**
-     * {@inheritdoc}
-     */
-    public function serialize()
-    {
-        return serialize(array
-        (
-            'loginResult' => $this->loginResult
-        ));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function unserialize($serialized)
-    {
-        $unserialized = unserialize($serialized);
-
-        $this->loginResult      = $unserialized['loginResult'];
-    }
-
-    /**
      * Turn Sobjects into \SoapVars
      *
      * @param array  $objects Array of objects
@@ -498,6 +472,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     /**
      * @param $object
      * @param null|string $type
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return \SoapVar
      */
     protected function createObjectSoapVars($object, $type = null)
     {
@@ -514,7 +492,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
         {
             throw new \InvalidArgumentException('Missing $type argument.');
         }
-        return new \SoapVar($this->createSObject($object, $type), SOAP_ENC_OBJECT, $type, $this->connection->getWsdl()->getTns());
+        return new \SoapVar($this->createSObject($object, $type), SOAP_ENC_OBJECT, $type, $this->getConnection()->getWsdl()->getTns());
     }
 
     /**
@@ -560,8 +538,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     }
 
     /**
+     * @param $objectType
      * @param string $field
-     * @param string $sfType
+     * @param $value
+     *
      * @return string
      */
     protected function convertFieldForDML($objectType, $field, $value)
@@ -633,7 +613,10 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      * Issue a call to Salesforce API
      *
      * @param string $method SOAP operation name
-     * @param array  $params SOAP parameters
+     * @param array $params SOAP parameters
+     *
+     * @throws \Exception
+     * @throws \SoapFault
      *
      * @return array | \Traversable An empty array or a result object, such
      *                              as QueryResult, SaveResult, DeleteResult.
@@ -641,7 +624,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
     protected function call($method, array $params = array())
     {
         // Prepare headers
-        $this->connection->__setSoapHeaders($this->getSessionHeader());
+        $this->getConnection()->__setSoapHeaders($this->getSessionHeader());
 
         $requestEvent = new Event\RequestEvent($method, $params);
 
@@ -649,7 +632,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
 
         try
         {
-            $result = $this->connection->$method($params);
+            $result = $this->getConnection()->$method($params);
         }
         catch (\SoapFault $soapFault)
         {
@@ -686,9 +669,9 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
 
         foreach ($headers as $key => $value)
         {
-            $soapHeaderObjects[] = new \SoapHeader($this->connection->getWsdl()->getTns(), $key, $value);
+            $soapHeaderObjects[] = new \SoapHeader($this->getConnection()->getWsdl()->getTns(), $key, $value);
         }
-        $this->connection->__setSoapHeaders($soapHeaderObjects);
+        $this->getConnection()->__setSoapHeaders($soapHeaderObjects);
     }
 
     /**
@@ -699,7 +682,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     protected function getSessionHeader()
     {
-        if(null === $this->loginResult)
+        if(null === $this->getLoginResult())
         {
             $this->sessionHeader = null;
         }
@@ -710,7 +693,7 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
 
             $this->sessionHeader = new \SoapHeader
             (
-                $this->connection->getWsdl()->getTns(),
+                $this->getConnection()->getWsdl()->getTns(),
                 'SessionHeader',
                 array(
                     'sessionId' => $this->loginResult->getSessionId()
@@ -728,6 +711,6 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     protected function setEndpointLocation($location)
     {
-        $this->connection->__setLocation($location);
+        $this->getConnection()->__setLocation($location);
     }
 }

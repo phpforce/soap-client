@@ -1,14 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: joshi
- * Date: 23.10.13
- * Time: 16:16
- */
-
 namespace Phpforce\SoapClient;
-
-use Phpforce\SoapClient\Soap\SoapConnection;
 
 class EnterpriseClient extends Client
 {
@@ -18,8 +9,6 @@ class EnterpriseClient extends Client
     private $sfToPhpConverter;
 
     /**
-     * @override
-     *
      * {@inheritdoc}
      */
     public function query($query)
@@ -32,8 +21,6 @@ class EnterpriseClient extends Client
     }
 
     /**
-     * @override
-     *
      * {@inheritdoc}
      */
     public function queryAll($query)
@@ -48,21 +35,23 @@ class EnterpriseClient extends Client
     /**
      * @return callable
      */
-    private function getSfToPhpConverter()
+    public function getSfToPhpConverter()
     {
         if(null === $this->sfToPhpConverter)
         {
-            $this->sfToPhpConverter = function($object)
+            $self = $this;
+
+            $this->sfToPhpConverter = function($object) use ($self)
             {
                 if($object instanceof Result\QueryResult)
                 {
-                    new Result\RecordIterator($this, $object, $this->getSfToPhpConverter());
+                    new Result\RecordIterator($self, $object, $self->getSfToPhpConverter());
                 }
                 elseif(is_object($object))
                 {
                     foreach($object AS &$value)
                     {
-                        $value = $this->getSfToPhpConverter($value);
+                        $value = $self->getSfToPhpConverter($value);
                     }
                 }
                 return $object;

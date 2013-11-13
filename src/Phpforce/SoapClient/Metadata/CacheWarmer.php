@@ -8,7 +8,6 @@
 
 namespace Phpforce\SoapClient\Metadata;
 
-use Doctrine\Common\Cache\Cache;
 use Phpforce\SoapClient\ClientInterface;
 
 class CacheWarmer
@@ -25,7 +24,7 @@ class CacheWarmer
 
     /**
      * @param ClientInterface $client
-     * @param Cache $cache
+     * @param bool $force
      */
     public function __construct(ClientInterface $client, $force = false)
     {

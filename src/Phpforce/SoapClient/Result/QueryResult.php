@@ -55,5 +55,6 @@ class QueryResult
         {
             return $this->records[$index];
         }
+        return null;
     }
 }
