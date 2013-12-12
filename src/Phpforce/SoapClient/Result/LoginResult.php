@@ -83,7 +83,7 @@ class LoginResult
         }
 
         $match = preg_match(
-            '/https:\/\/(?<instance>[^-\.]+)/',
+            '/https:\/\/(?<instance>.+).salesforce.com/',
             $this->serverUrl,
             $matches
         );
