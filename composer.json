@@ -17,7 +17,7 @@
         "psr/log": "*"
     },
     "require-dev": {
-        "doctrine/common": "2.3@stable"
+        "doctrine/common": ">=2.3"
     },
     "suggest": {
         "doctrine/common": "For caching SOAP responses",
