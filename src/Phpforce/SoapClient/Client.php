@@ -546,7 +546,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
      * @return array | \Traversable An empty array or a result object, such
      *                              as QueryResult, SaveResult, DeleteResult.
      */
-    protected function call($method, array $params = array())
+    public function call($method, array $params = array())
     {
         $this->init();
 
