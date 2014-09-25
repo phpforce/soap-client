@@ -52,19 +52,23 @@ class SoapClientFactory
     protected $typeConverters;
 
     /**
-     * @param string $wsdl Some argument description
-     *
+     * @param string $wsdl Path to WSDL file
+     * @param array $soapOptions
      * @return SoapClient
      */
-    public function factory($wsdl)
+    public function factory($wsdl, array $soapOptions = array())
     {
-        return new SoapClient($wsdl, array(
-            'trace'     => 1,
-            'features'  => \SOAP_SINGLE_ELEMENT_ARRAYS,
-            'classmap'  => $this->classmap,
-            'typemap'   => $this->getTypeConverters()->getTypemap(),
+        $defaults = array(
+            'trace'      => 1,
+            'features'   => \SOAP_SINGLE_ELEMENT_ARRAYS,
+            'classmap'   => $this->classmap,
+            'typemap'    => $this->getTypeConverters()->getTypemap(),
             'cache_wsdl' => \WSDL_CACHE_MEMORY
-        ));
+        );
+
+        $options = array_merge($defaults, $soapOptions);
+
+        return new SoapClient($wsdl, $options);
     }
 
     /**
