@@ -61,7 +61,7 @@ $client = $builder->build();
 ### SOQL queries
 
 ```php
-$result = $client->query('select Name, SystemModstamp from Account limit 5');
+$results = $client->query('select Name, SystemModstamp from Account limit 5');
 ```
 
 This will fetch five accounts from Salesforce and return them as a
