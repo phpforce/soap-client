@@ -12,7 +12,10 @@ class SObject
      * @var string
      */
     public $Id;
-    
+
+    /**
+     * @return string
+     */
     public function getId()
     {
         return $this->Id;

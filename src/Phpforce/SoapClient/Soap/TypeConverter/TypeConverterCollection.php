@@ -2,13 +2,14 @@
 
 namespace Phpforce\SoapClient\Soap\TypeConverter;
 
-use Doctrine\Common\Collections\ArrayCollection;
-
 /**
  * A collection of type converters
  */
 class TypeConverterCollection
 {
+    /**
+     * @var TypeConverterInterface[]
+     */
     protected $converters = array();
 
     /**

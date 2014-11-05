@@ -2,6 +2,7 @@
 namespace Phpforce\SoapClient;
 
 use Phpforce\SoapClient\Result;
+use Phpforce\SoapClient\Soap\SoapConnection;
 
 /**
  * Salesforce API client interface
@@ -168,7 +169,7 @@ interface ClientInterface
      *
      * @param string $query
      *
-     * @return Result\QueryResult[]
+     * @return Result\RecordIterator
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_queryall.htm
      */
     public function queryAll($query);
@@ -178,7 +179,7 @@ interface ClientInterface
      *
      * @param string $queryLocator
      *
-     * @return Result\QueryResult
+     * @return Result\RecordIterator
      * @link http://www.salesforce.com/us/developer/docs/api/Content/sforce_api_calls_querymore.htm
      */
     public function queryMore($queryLocator);
@@ -278,5 +279,13 @@ interface ClientInterface
      * @param string $password Password
      */
     public function setPassword($userId, $password);
+
+    /**
+     * Returns the underlying php´s \SoapClient
+     * instance.
+     *
+     * @return SoapConnection
+     */
+    public function getConnection();
 }
 

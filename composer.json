@@ -13,19 +13,16 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "phpforce/common": "dev-master",
-        "psr/log": "*"
-    },
-    "require-dev": {
-        "doctrine/common": ">=2.3"
+        "psr/log": "*",
+        "doctrine/common": "2.4.*",
+        "phpforce/common": "dev-master@dev"
     },
     "suggest": {
-        "doctrine/common": "For caching SOAP responses",
         "monolog/monolog": "For logging SOAP transactions"
     },
     "autoload": {
         "psr-0": {
-            "Phpforce\\SoapClient": "src"
+            "Phpforce\\SoapClient": "src/"
         }
     },
     "replace": {
@@ -34,4 +31,6 @@
     "conflict": {
         "phpforce/soap-client": "*"
     }
+    },
+    "minimum-stability": "stable"
 }

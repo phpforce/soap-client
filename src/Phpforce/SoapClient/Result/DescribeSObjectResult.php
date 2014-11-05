@@ -52,7 +52,7 @@ class DescribeSObjectResult
     /**
      * Get child relationship by name
      *
-     * @param string $name  Relationship name
+     * @param string $name Relationship name
      * @return ChildRelationship
      */
     public function getChildRelationship($name)
@@ -112,7 +112,7 @@ class DescribeSObjectResult
 
     /**
      *
-     * @return ArrayCollection|Field[]
+     * @return Field[]
      */
     public function getFields()
     {
@@ -126,6 +126,7 @@ class DescribeSObjectResult
      * Get field description by field name
      *
      * @param string $field Field name
+     *
      * @return Field
      */
     public function getField($field)

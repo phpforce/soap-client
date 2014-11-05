@@ -1,7 +1,7 @@
 <?php
 namespace Phpforce\SoapClient\Result;
 
-use Phpforce\SoapClient\Client;
+use Phpforce\SoapClient\ClientInterface;
 
 /**
  * Iterator that contains records retrieved from the Salesforce API
@@ -17,7 +17,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     /**
      * Salesforce client
      *
-     * @var Client
+     * @var ClientInterface
      */
     protected $client;
 
@@ -43,20 +43,26 @@ class RecordIterator implements \SeekableIterator, \Countable
     protected $current;
 
     /**
-     * Construct a record iterator
-     *
-     * @param client $client
-     * @param string $result
+     * @var callable|null
      */
-    public function __construct(Client $client, QueryResult $result)
+    protected $sfToPhpConverter;
+
+    /**
+     * @param ClientInterface $client
+     * @param QueryResult $result
+     * @param callable|null $sfToPhpConverter
+     */
+    public function __construct(ClientInterface $client, QueryResult $result, $sfToPhpConverter = null)
     {
         $this->client = $client;
+
         $this->setQueryResult($result);
+
+        $this->sfToPhpConverter = $sfToPhpConverter;
     }
 
     /**
      * {@inheritdoc}
-     * @return object
      */
     public function current()
     {
@@ -69,35 +75,34 @@ class RecordIterator implements \SeekableIterator, \Countable
      *
      * @param int $pointer
      *
-     * @return object
+     * @return SObject
      */
     protected function getObjectAt($pointer)
     {
-        if ($this->queryResult->getRecord($pointer)) {
-            $this->current = $this->queryResult->getRecord($pointer);
+        if (($current = $this->queryResult->getRecord($pointer)))
+        {
+            $this->current = $current;
 
-            foreach ($this->current as $key => &$value) {
-                if ($value instanceof QueryResult) {
-                    $value = new RecordIterator($this->client, $value);
-                }
+            if(null !== $this->sfToPhpConverter)
+            {
+                $this->current = call_user_func($this->sfToPhpConverter, $this->current);
             }
-
             return $this->current;
         }
 
         // If no record was found at pointer, see if there are more records
         // available for querying
-        if (!$this->queryResult->isDone()) {
+        if (!$this->queryResult->isDone())
+        {
             $this->queryMore();
 
             return $this->getObjectAt($this->pointer);
         }
+        return null;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return int|null
      */
     public function key()
     {
@@ -122,8 +127,6 @@ class RecordIterator implements \SeekableIterator, \Countable
 
     /**
      * {@inheritdoc}
-     *
-     * @return boolean
      */
     public function valid()
     {
@@ -133,7 +136,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     /**
      * Get first object
      *
-     * @return object
+     * @return SObject
      */
     public function first()
     {
@@ -156,19 +159,15 @@ class RecordIterator implements \SeekableIterator, \Countable
 
     /**
      * Query Salesforce for more records and rewind iterator
-     *
      */
     protected function queryMore()
     {
-        $result = $this->client->queryMore($this->queryResult->getQueryLocator());
-        $this->setQueryResult($result);
+        $this->setQueryResult($this->client->queryMore($this->queryResult->getQueryLocator())->getQueryResult());
         $this->rewind();
     }
 
     /**
-     * Get total number of records returned from Salesforce
-     *
-     * @return int
+     * {@inheritdoc}
      */
     public function count()
     {
@@ -176,7 +175,7 @@ class RecordIterator implements \SeekableIterator, \Countable
     }
 
     /**
-     * @param int $position
+     * {@inheritdoc}
      */
     public function seek($position)
     {
@@ -223,5 +222,13 @@ class RecordIterator implements \SeekableIterator, \Countable
     public function getQueryResult()
     {
         return $this->queryResult;
+    }
+
+    /**
+     * @param callable|null $sfToPhpConverter
+     */
+    public function setSfToPhpConverter($sfToPhpConverter)
+    {
+        $this->sfToPhpConverter = $sfToPhpConverter;
     }
 }

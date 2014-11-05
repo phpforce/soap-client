@@ -2,12 +2,13 @@
 namespace Phpforce\SoapClient\Soap;
 
 use Phpforce\SoapClient\Soap\TypeConverter;
+use Phpforce\SoapClient\Soap\WSDL\Wsdl;
 
 /**
  * Factory to create a \SoapClient properly configured for the Salesforce SOAP
  * client
  */
-class SoapClientFactory
+class ConnectionFactory implements ConnectionFactoryInterface
 {
     /**
      * Default classmap
@@ -52,13 +53,11 @@ class SoapClientFactory
     protected $typeConverters;
 
     /**
-     * @param string $wsdl Some argument description
-     *
-     * @return SoapClient
+     * {@inheritdoc}
      */
-    public function factory($wsdl)
+    public function getInstance(Wsdl $wsdl)
     {
-        return new SoapClient($wsdl, array(
+        return new SoapConnection($wsdl, array(
             'trace'     => 1,
             'features'  => \SOAP_SINGLE_ELEMENT_ARRAYS,
             'classmap'  => $this->classmap,
@@ -68,10 +67,7 @@ class SoapClientFactory
     }
 
     /**
-     * test
-     *
-     * @param string $soap SOAP class
-     * @param string $php  PHP class
+     * {@inheritdoc}
      */
     public function setClassmapping($soap, $php)
     {
@@ -79,30 +75,23 @@ class SoapClientFactory
     }
 
     /**
-     * Get type converter collection that will be used for the \SoapClient
-     *
-     * @return TypeConverter\TypeConverterCollection
+     * {@inheritdoc}
      */
     public function getTypeConverters()
     {
-        if (null === $this->typeConverters) {
-            $this->typeConverters = new TypeConverter\TypeConverterCollection(
-                array(
-                    new TypeConverter\DateTimeTypeConverter(),
-                    new TypeConverter\DateTypeConverter()
-                )
-            );
+        if (null === $this->typeConverters)
+        {
+            $this->typeConverters = new TypeConverter\TypeConverterCollection(array
+            (
+                new TypeConverter\DateTimeTypeConverter(),
+                new TypeConverter\DateTypeConverter()
+            ));
         }
-
         return $this->typeConverters;
     }
 
     /**
-     * Set type converter collection
-     *
-     * @param TypeConverter\TypeConverterCollection $typeConverters Type converter collection
-     *
-     * @return SoapClientFactory
+     * {@inheritdoc}
      */
     public function setTypeConverters(TypeConverter\TypeConverterCollection $typeConverters)
     {

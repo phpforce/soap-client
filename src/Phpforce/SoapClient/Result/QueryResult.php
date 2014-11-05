@@ -29,7 +29,7 @@ class QueryResult
     }
 
     /**
-     * @return array
+     * @return SObject[]
      */
     public function getRecords()
     {
@@ -44,10 +44,17 @@ class QueryResult
         return $this->size;
     }
 
+    /**
+     * @param int $index
+     *
+     * @return SObject
+     */
     public function getRecord($index)
     {
-        if (isset($this->records[$index])) {
+        if(isset($this->records[$index]))
+        {
             return $this->records[$index];
         }
+        return null;
     }
 }

@@ -3,6 +3,7 @@
 namespace Phpforce\SoapClient;
 
 use Phpforce\SoapClient\Result\SaveResult;
+use Phpforce\SoapClient\Result\SObject;
 
 /**
  * Add creates, updates and upserts to the queue, and issue them in bulk to
@@ -40,9 +41,7 @@ class BulkSaver implements BulkSaverInterface
     private $bulkUpsertMatchFields = array();
 
     /**
-     * Construct bulk saver
-     *
-     * @param Client $client        Salesforce client
+     * @param ClientInterface $client
      */
     public function __construct(ClientInterface $client)
     {
@@ -165,8 +164,8 @@ class BulkSaver implements BulkSaverInterface
     /**
      * Add a record to the create queue
      *
-     * @param sObject $sObject
-     * @param type $objectType
+     * @param $record
+     * @param string $objectType
      */
     private function addBulkCreateRecord($record, $objectType)
     {
@@ -183,7 +182,7 @@ class BulkSaver implements BulkSaverInterface
      *
      * (Delete calls
      *
-     * @param string $id
+     * @param $record
      */
     private function addBulkDeleteRecord($record)
     {
@@ -197,7 +196,7 @@ class BulkSaver implements BulkSaverInterface
      /**
      * Add a record to the update queue
      *
-     * @param sObject $sObject
+     * @param SObject $sObject
      * @param string $objectType
      */
     private function addBulkUpdateRecord($sObject, $objectType)
@@ -215,6 +214,7 @@ class BulkSaver implements BulkSaverInterface
      *
      * @param sObject $sObject
      * @param string $objectType
+     * @param $matchField
      */
     private function addBulkUpsertRecord($sObject, $objectType, $matchField)
     {

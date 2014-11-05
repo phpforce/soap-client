@@ -74,6 +74,9 @@ class LoginResult
     /**
      * Get the server instance, e.g. ‘eu1’ or ‘cs7’
      *
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     *
      * @return string
      */
     public function getServerInstance()
