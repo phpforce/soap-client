@@ -40,20 +40,21 @@ class SoapClientFactory
         'SendEmailResult'       => 'Phpforce\SoapClient\Result\SendEmailResult',
         'SingleEmailMessage'    => 'Phpforce\SoapClient\Request\SingleEmailMessage',
         'sObject'               => 'Phpforce\SoapClient\Result\SObject',
-        'UndeleteResult'        => 'Phpforce\SoapClient\Result\UndeleteResult'
+        'UndeleteResult'        => 'Phpforce\SoapClient\Result\UndeleteResult',
+        'UpsertResult'          => 'Phpforce\SoapClient\Result\UpsertResult',
     );
 
     /**
      * Type converters collection
      *
-     * @var TypeConverterCollection
+     * @var TypeConverter\TypeConverterCollection
      */
     protected $typeConverters;
 
     /**
      * @param string $wsdl Some argument description
      *
-     * @return void
+     * @return SoapClient
      */
     public function factory($wsdl)
     {
@@ -80,7 +81,7 @@ class SoapClientFactory
     /**
      * Get type converter collection that will be used for the \SoapClient
      *
-     * @return TypeConverterCollection
+     * @return TypeConverter\TypeConverterCollection
      */
     public function getTypeConverters()
     {
@@ -99,7 +100,7 @@ class SoapClientFactory
     /**
      * Set type converter collection
      *
-     * @param type $typeConverters Type converter collection
+     * @param TypeConverter\TypeConverterCollection $typeConverters Type converter collection
      *
      * @return SoapClientFactory
      */
