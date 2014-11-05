@@ -10,6 +10,7 @@
             "email": "david@ddeboer.nl",
             "homepage": "http://ddeboer.nl"
         }
+
     ],
     "require": {
         "php": ">=5.3.0",
@@ -31,6 +32,4 @@
     "conflict": {
         "phpforce/soap-client": "*"
     }
-    },
-    "minimum-stability": "stable"
 }
