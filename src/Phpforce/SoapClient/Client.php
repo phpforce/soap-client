@@ -210,16 +210,20 @@ abstract class Client extends AbstractHasDispatcher implements ClientInterface
      */
     public function login($username, $password, $token)
     {
-        $this->loginResult = $this->getConnection()->login
-        (
-            array(
-                'username'  => $username,
-                'password'  => $password.$token
-            )
-        )->result;
-        $this->cache->save('__loginResult', $this->loginResult);
+        try {
+            $this->loginResult = $this->getConnection()->login
+            (
+                array(
+                    'username'  => $username,
+                    'password'  => $password.$token
+                )
+            )->result;
+            $this->cache->save('__loginResult', $this->loginResult);
 
-        return $this->loginResult;
+            return $this->loginResult;
+        } catch (\Exception $e) {
+            
+        }
     }
 
     /**
