@@ -64,6 +64,7 @@ class SoapClient extends \SoapClient
     public function getSoapElements($complexType)
     {
         $types = $this->getSoapTypes();
+        $types['Id'] = 'string';
         if (isset($types[$complexType])) {
             return $types[$complexType];
         }
