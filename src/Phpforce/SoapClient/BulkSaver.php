@@ -285,7 +285,8 @@ class BulkSaver implements BulkSaverInterface
         $result = $this->client->upsert(
             $this->bulkUpsertMatchFields[$objectType],
             $this->bulkUpsertRecords[$objectType],
-            $objectType);
+            $objectType
+        );
         $this->bulkUpsertRecords[$objectType] = array();
 
         return $result;

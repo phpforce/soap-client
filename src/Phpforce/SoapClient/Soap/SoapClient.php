@@ -23,7 +23,6 @@ class SoapClient extends \SoapClient
     public function getSoapTypes()
     {
         if (null === $this->types) {
-
             $soapTypes = $this->__getTypes();
             foreach ($soapTypes as $soapType) {
                 $properties = array();

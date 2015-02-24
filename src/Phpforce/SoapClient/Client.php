@@ -461,7 +461,6 @@ class Client extends AbstractHasDispatcher implements ClientInterface
         $soapVars = array();
 
         foreach ($objects as $object) {
-
             $sObject = $this->createSObject($object, $type);
 
             $xml = '';
@@ -490,8 +489,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
     {
         if (isset($object->enc_value->fieldsToNull)
             && is_array($object->enc_value->fieldsToNull)
-            && count($object->enc_value->fieldsToNull) > 0)
-        {
+            && count($object->enc_value->fieldsToNull) > 0) {
             $xml = '';
             foreach ($object->enc_value->fieldsToNull as $fieldToNull) {
                 $xml .= '<fieldsToNull>' . $fieldToNull . '</fieldsToNull>';
@@ -516,7 +514,6 @@ class Client extends AbstractHasDispatcher implements ClientInterface
         $exceptions = new Exception\SaveException();
 
         for ($i = 0; $i < count($results); $i++) {
-
             // If the param was an (s)object, set it’s Id field
             if (is_object($params[$i])
                 && (!isset($params[$i]->Id) || null === $params[$i]->Id)
@@ -698,4 +695,3 @@ class Client extends AbstractHasDispatcher implements ClientInterface
         return $sObject;
     }
 }
-

@@ -57,5 +57,3 @@ class MergeResult
         return $this->mergedRecordIds;
     }
 }
-
-

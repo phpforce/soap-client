@@ -45,4 +45,3 @@ class RequestEvent extends Event
         $this->response = $response;
     }
 }
-

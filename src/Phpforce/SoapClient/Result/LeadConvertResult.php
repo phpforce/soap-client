@@ -11,4 +11,3 @@ class LeadConvertResult
     public $success;
     public $errors;
 }
-
