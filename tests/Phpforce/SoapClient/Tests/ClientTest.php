@@ -66,7 +66,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 Select aId, Name from Account LIMIT 1
        ^
 ERROR at Row:1:Column:8
-No such column 'aId' on entity 'Account'. If you are attempting to use a custom field, be sure to append the '__c' after the custom field name. Please reference your WSDL or the describe call for the appropriate names.")));
+No such column 'aId' on entity 'Account'. If you are attempting to use a custom field, be sure to append the '__c'"
+        ." after the custom field name. Please reference your WSDL or the describe call for the appropriate names.")));
 
         $client = $this->getClient($soapClient);
 
