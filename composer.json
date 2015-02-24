@@ -32,5 +32,10 @@
         "psr-0": {
             "Phpforce\\SoapClient": "src"
         }
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "Phpforce\\SoapClient\\Test": "tests"
+        }
     }
 }
