@@ -65,7 +65,9 @@ class SoapClient extends \SoapClient
     {
         $types = $this->getSoapTypes();
         if (isset($types[$complexType])) {
-            if (isset($types['sObject']['Id'])) $types[$complexType]['Id'] = $types['sObject']['Id'];
+            if (isset($types['sObject']['Id'])) {
+                $types[$complexType]['Id'] = $types['sObject']['Id'];
+            }
             return $types[$complexType];
         }
     }
