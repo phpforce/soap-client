@@ -49,7 +49,7 @@ Use the client to query and manipulate your organisation’s Salesforce data. Fi
 
 ```php
 $builder = new \Phpforce\SoapClient\ClientBuilder(
-  '/path/to/your/salesforce/wsdl/sandbox.enterprise.wsdl.xml'
+  '/path/to/your/salesforce/wsdl/sandbox.enterprise.wsdl.xml',
   'username',
   'password',
   'security_token'
@@ -61,7 +61,7 @@ $client = $builder->build();
 ### SOQL queries
 
 ```php
-$result = $client->query('select Name, SystemModstamp from Account limit 5');
+$results = $client->query('select Name, SystemModstamp from Account limit 5');
 ```
 
 This will fetch five accounts from Salesforce and return them as a
@@ -119,7 +119,7 @@ $log = new \Monolog\Logger('name');
 $log->pushHandler(new \Monolog\Handler\StreamHandler('path/to/your.log'));
 
 $builder = new \Phpforce\SoapClient\ClientBuilder(
-  '/path/to/your/salesforce/wsdl/sandbox.enterprise.wsdl.xml'
+  '/path/to/your/salesforce/wsdl/sandbox.enterprise.wsdl.xml',
   'username',
   'password',
   'security_token'

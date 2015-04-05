@@ -665,7 +665,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
 
         foreach (get_object_vars($object) as $field => $value) {
             $type = $this->soapClient->getSoapElementType($objectType, $field);
-            if (!$type) {
+            if ($field != 'Id' && !$type) {
                 continue;
             }
 
