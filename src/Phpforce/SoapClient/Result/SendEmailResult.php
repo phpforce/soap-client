@@ -5,7 +5,7 @@ namespace Phpforce\SoapClient\Result;
 /**
  * Send email result
  */
-class SendEmailResult 
+class SendEmailResult
 {
     protected $errors;
     protected $success;

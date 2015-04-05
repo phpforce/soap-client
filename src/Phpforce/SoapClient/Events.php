@@ -7,4 +7,3 @@ final class Events
     const RESPONSE   = 'phpforce.soap_client.response';
     const FAULT      = 'phpforce.soap_client.fault';
 }
-

@@ -279,4 +279,3 @@ interface ClientInterface
      */
     public function setPassword($userId, $password);
 }
-

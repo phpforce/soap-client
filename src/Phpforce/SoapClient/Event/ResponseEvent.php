@@ -29,4 +29,3 @@ class ResponseEvent extends Event
         return $this->response;
     }
 }
-

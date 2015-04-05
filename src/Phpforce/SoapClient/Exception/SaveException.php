@@ -19,8 +19,7 @@ class SaveException extends \Exception implements \IteratorAggregate, \Countable
                 if (count($errors) > 0) {
                     return $errors[0]->getMessage();
                 }
-            }, $this->results
-            )
+            }, $this->results)
         );
     }
 

@@ -48,4 +48,3 @@ class DateTimeTypeConverter implements TypeConverterInterface
         return sprintf('<%1$s>%2$s</%1$s>', $this->getTypeName(), $php->format('Y-m-d\TH:i:sP'));
     }
 }
-

@@ -43,7 +43,7 @@ class TypeConverterCollection
     }
 
     /**
-     * Set (overwrite) a type converter in the collection 
+     * Set (overwrite) a type converter in the collection
      *
      * @param TypeConverterInterface $converter Type converter
      *
@@ -60,7 +60,7 @@ class TypeConverterCollection
     /**
      * Returns true if the collection contains a type converter for a certain
      * namespace and name
-     * 
+     *
      * @param string $namespace Converter namespace
      * @param string $name      Converter name
      *
@@ -77,7 +77,7 @@ class TypeConverterCollection
 
     /**
      * Get this collection as a typemap that can be used in PHP's \SoapClient
-     * 
+     *
      * @return array
      */
     public function getTypemap()
