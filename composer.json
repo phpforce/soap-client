@@ -15,7 +15,7 @@
     "require": {
         "php": ">=5.3.0",
         "psr/log": "*",
-        "doctrine/common": "2.4.*",
+        "doctrine/common": "~2.4",
         "phpforce/common": "dev-master@dev"
     },
     "suggest": {
