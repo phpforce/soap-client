@@ -100,7 +100,11 @@ class BulkSaver implements BulkSaverInterface
 
         foreach ($this->bulkCreateRecords as $type => $objects) {
             if (count($objects) > 0) {
-                $results[] = $this->flushCreates($type);
+                $createResults =  $this->flushCreates($type);
+
+                $this->populateIds($createResults, $objects);
+
+                $results[] = $createResults;
             }
         }
 
@@ -117,6 +121,19 @@ class BulkSaver implements BulkSaverInterface
         }
 
         return $results;
+    }
+
+    /**
+     * @param SaveResult[] $results
+     * @param $objects
+     */
+    public function populateIds($results, $objects)
+    {
+        foreach ($results as $key => $result) {
+            if($result instanceof SaveResult && method_exists($objects[$key], 'setId')) {
+                $objects[$key]->setId($result->getId());
+            }
+        }
     }
 
     /**
