@@ -13,11 +13,11 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "phpforce/common": "dev-master",
-        "psr/log": "*"
+        "comsave/common": "~0.1.0",
+        "psr/log": "~1.0.0"
     },
     "require-dev": {
-        "doctrine/common": ">=2.3"
+        "doctrine/common": "~2.3"
     },
     "suggest": {
         "doctrine/common": "For caching SOAP responses",
