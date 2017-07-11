@@ -12,6 +12,9 @@ use Psr\Log\LoggerInterface;
  */
 class ClientBuilder
 {
+    /**
+     * @var LoggerInterface $log
+     */
     protected $log;
 
     /**
@@ -22,14 +25,16 @@ class ClientBuilder
      * @param string $password    Your Salesforce password
      * @param string $token       Your Salesforce security token
      * @param array  $soapOptions Further options to be passed to the SoapClient
+     * @param string $environment SoapClient environment. Used to disable WSDL cache for 'dev' environment
      */
-    public function __construct($wsdl, $username, $password, $token, array $soapOptions = array())
+    public function __construct($wsdl, $username, $password, $token, array $soapOptions = array(), $environment = 'prod')
     {
         $this->wsdl = $wsdl;
         $this->username = $username;
         $this->password = $password;
         $this->token = $token;
         $this->soapOptions = $soapOptions;
+        $this->environment = $environment;
     }
 
     /**
@@ -54,7 +59,7 @@ class ClientBuilder
     public function build()
     {
         $soapClientFactory = new SoapClientFactory();
-        $soapClient = $soapClientFactory->factory($this->wsdl, $this->soapOptions);
+        $soapClient = $soapClientFactory->factory($this->wsdl, $this->soapOptions, $this->environment);
 
         $client = new Client($soapClient, $this->username, $this->password, $this->token);
 

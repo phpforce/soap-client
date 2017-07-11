@@ -54,16 +54,17 @@ class SoapClientFactory
     /**
      * @param string $wsdl Path to WSDL file
      * @param array $soapOptions
+     * @param string $environment
      * @return SoapClient
      */
-    public function factory($wsdl, array $soapOptions = array())
+    public function factory($wsdl, array $soapOptions = array(), $environment)
     {
         $defaults = array(
             'trace'      => 1,
             'features'   => \SOAP_SINGLE_ELEMENT_ARRAYS,
             'classmap'   => $this->classmap,
             'typemap'    => $this->getTypeConverters()->getTypemap(),
-            'cache_wsdl' => \WSDL_CACHE_MEMORY
+            'cache_wsdl' => $environment == 'dev' ? \WSDL_CACHE_NONE : \WSDL_CACHE_MEMORY
         );
 
         $options = array_merge($defaults, $soapOptions);
