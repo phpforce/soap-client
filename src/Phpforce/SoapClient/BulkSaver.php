@@ -95,45 +95,28 @@ class BulkSaver implements BulkSaverInterface
         $results = array();
 
         if (count($this->bulkDeleteRecords) > 0) {
-            $results[] = $this->flushDeletes();
+            $results['deleted'] = $this->flushDeletes();
         }
 
         foreach ($this->bulkCreateRecords as $type => $objects) {
             if (count($objects) > 0) {
-                $createResults =  $this->flushCreates($type);
-
-                $this->populateIds($createResults, $objects);
-
-                $results[] = $createResults;
+                $results['created'] = $this->flushCreates($type);
             }
         }
 
         foreach ($this->bulkUpdateRecords as $type => $objects) {
             if (count($objects) > 0) {
-                $results[] = $this->flushUpdates($type);
+                $results['updated'] = $this->flushUpdates($type);
             }
         }
 
         foreach ($this->bulkUpsertRecords as $type => $objects) {
             if (count($objects) > 0) {
-                $results[] = $this->flushUpserts($type);
+                $results['upserted'] = $this->flushUpserts($type);
             }
         }
 
         return $results;
-    }
-
-    /**
-     * @param SaveResult[] $results
-     * @param $objects
-     */
-    public function populateIds($results, $objects)
-    {
-        foreach ($results as $key => $result) {
-            if($result instanceof SaveResult && method_exists($objects[$key], 'setId')) {
-                $objects[$key]->setId($result->getId());
-            }
-        }
     }
 
     /**
@@ -211,7 +194,7 @@ class BulkSaver implements BulkSaverInterface
         $this->bulkDeleteRecords[] = $record;
     }
 
-     /**
+    /**
      * Add a record to the update queue
      *
      * @param sObject $sObject
@@ -245,7 +228,7 @@ class BulkSaver implements BulkSaverInterface
         $this->bulkUpsertRecords[$objectType][] = $sObject;
     }
 
-     /**
+    /**
      * Flush creates
      *
      * @param string $objectType
@@ -281,7 +264,7 @@ class BulkSaver implements BulkSaverInterface
      * Flush updates
      *
      * @param string $objectType
-     * @return SaveResult
+     * @return SaveResult[]
      */
     private function flushUpdates($objectType)
     {
