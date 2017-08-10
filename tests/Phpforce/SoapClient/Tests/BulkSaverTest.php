@@ -1,9 +1,11 @@
 <?php
 namespace Phpforce\SoapClient\Tests;
 
+use PHPUnit\Framework\TestCase;
+
 use Phpforce\SoapClient\BulkSaver;
 
-class BulkSaverTest extends \PHPUnit_Framework_TestCase
+class BulkSaverTest extends TestCase
 {
     public function testCreate()
     {
@@ -71,12 +73,14 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
         $bulkSaver->flush();
     }
 
+    /**
+     * @expectedException     InvalidArgumentException
+     */
     public function testDeleteWithoutIdThrowsException()
     {
         $client = $this->getClient();
         $bulkSaver = new BulkSaver($client);
         $invalidRecord = new \stdClass();
-        $this->setExpectedException('\InvalidArgumentException', 'Only records with an Id can be deleted');
         $bulkSaver->delete($invalidRecord);
     }
 
@@ -101,7 +105,9 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
     public function testFlushEmpty()
     {
         $bulkSaver = new BulkSaver($this->getClient());
-        $bulkSaver->flush();
+        $result = $bulkSaver->flush();
+
+        $this->assertEmpty($result);
     }
 
     protected function getClient()
