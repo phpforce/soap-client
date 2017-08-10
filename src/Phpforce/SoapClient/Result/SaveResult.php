@@ -53,7 +53,7 @@ class SaveResult
     }
 
     /**
-     * @return array
+     * @return Error[]
      */
     public function getErrors()
     {

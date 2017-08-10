@@ -1,7 +1,7 @@
 {
     "name": "phpforce/soap-client",
     "type": "library",
-    "description": "Use the Salesforce SOAP API from PHP",
+    "description": "A PHP client for the Salesforce SOAP API",
     "keywords": [ "salesforce", "crm", "soap", "force.com", "web services" ],
     "license": "MIT",
     "authors": [
@@ -13,13 +13,16 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "phpforce/common": "dev-master"
+        "phpforce/common": "dev-master",
+        "psr/log": "*"
     },
     "require-dev": {
-        "doctrine/common": "2.3@stable"
+        "doctrine/common": ">=2.3",
+        "phpunit/phpunit": "^6.3"
     },
     "suggest": {
-        "doctrine/common": "For caching SOAP responses"
+        "doctrine/common": "For caching SOAP responses",
+        "monolog/monolog": "For logging SOAP transactions"
     },
     "autoload": {
         "psr-0": {

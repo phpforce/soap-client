@@ -42,6 +42,7 @@ class SoapClient extends \SoapClient
 
             $soapTypes = $this->__getTypes();
             foreach ($soapTypes as $soapType) {
+                $properties = array();
                 $lines = explode("\n", $soapType);
                 if (!preg_match('/struct (.*) {/', $lines[0], $matches)) {
                     continue;
@@ -55,6 +56,12 @@ class SoapClient extends \SoapClient
                     preg_match('/\s* (.*) (.*);/', $line, $matches);
                     $properties[$matches[2]] = $matches[1];
                 }
+
+                // Since every object extends sObject, need to append sObject elements to all native and custom objects
+                if ($typeName !== 'sObject' && array_key_exists('sObject', $this->types)) {
+                    $properties = array_merge($properties, $this->types['sObject']);
+                }
+
                 $this->types[$typeName] = $properties;
             }
         }

@@ -1,9 +1,11 @@
 <?php
 namespace Phpforce\SoapClient\Tests\Soap;
 
+use PHPUnit\Framework\TestCase;
+
 use Phpforce\SoapClient\Soap\SoapClient;
 
-class SoapClientTest extends \PHPUnit_Framework_TestCase
+class SoapClientTest extends TestCase
 {
     public function testGetNamespace()
     {
