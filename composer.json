@@ -1,5 +1,5 @@
 {
-    "name": "phpforce/soap-client",
+    "name": "winternet-studio/salesforce-soap-client",
     "type": "library",
     "description": "A PHP client for the Salesforce SOAP API",
     "keywords": [ "salesforce", "crm", "soap", "force.com", "web services" ],
@@ -25,7 +25,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Phpforce\\SoapClient": "src"
+            "winternet\\SalesforceSoapClient": "src"
         }
     }
 }
