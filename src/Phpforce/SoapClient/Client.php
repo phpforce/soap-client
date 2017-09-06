@@ -33,7 +33,7 @@ class Client extends AbstractHasDispatcher implements ClientInterface
      *
      * @var SoapClient
      */
-    protected $soapClient;
+    public $soapClient;
 
     /**
      * @var string
