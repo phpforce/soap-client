@@ -1,7 +1,7 @@
 <?php
 namespace Phpforce\SoapClient\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Component\EventDispatcher\GenericEvent as Event;
 
 class RequestEvent extends Event
 {
