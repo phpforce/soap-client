@@ -33,4 +33,7 @@
             "email": "vaidas.bagdonas@comsave.com"
         }
     ],
+    "config": {
+        "sort-packages": true
+    }
 }
