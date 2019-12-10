@@ -1,15 +1,31 @@
 language: php
 
 php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - hhvm
+  - 7.2
+  - 7.3
+
+install: composer install --no-interaction
+
+script:
+  - composer run-coverage
 
 env:
-  - SYMFONY_VERSION="2.1.*"
+  global:
+    - CC_TEST_REPORTER_ID=7241670bd5135dbe5b4f24790815fcc50ac9e26b3f1a78227d2547f6cdf01ec1
+    - SYMFONY_VERSION=^4.3
+
+matrix:
+  include:
+    - php: 7.2
+      env: SYMFONY_VERSION=^3.4
+    - php: 7.3
+      env: SYMFONY_VERSION=^3.4
 
 before_script:
-  - wget http://getcomposer.org/composer.phar
-  - php composer.phar install
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+
+after_script:
+  - mv Tests/_output/coverage.xml clover.xml
+  - ./cc-test-reporter after-build --coverage-input-type clover --id $CC_TEST_REPORTER_ID --exit-code $TRAVIS_TEST_RESULT

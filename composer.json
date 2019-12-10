@@ -4,13 +4,11 @@
     "description": "A PHP client for the Salesforce SOAP API",
     "keywords": [ "salesforce", "crm", "soap", "force.com", "web services" ],
     "license": "MIT",
-    "authors": [
-        {
-            "name": "David de Boer",
-            "email": "david@ddeboer.nl",
-            "homepage": "http://ddeboer.nl"
+    "autoload": {
+        "psr-0": {
+            "Phpforce\\SoapClient": "src"
         }
-    ],
+    },
     "require": {
         "php": ">=5.3.0",
         "comsave/common": "^0.1.0",
@@ -19,13 +17,20 @@
     "require-dev": {
         "doctrine/common": "~2.3"
     },
-    "suggest": {
-        "doctrine/common": "For caching SOAP responses",
-        "monolog/monolog": "For logging SOAP transactions"
+    "scripts": {
+        "run-tests": "vendor/bin/phpunit -c phpunit.xml.dist --no-coverage",
+        "run-coverage": "vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover Tests/_output/coverage.xml",
+        "run-coverage-text": "vendor/bin/phpunit -c phpunit.xml.dist --coverage-text=Tests/_output/coverage.txt && cat Tests/_output/coverage.txt"
     },
-    "autoload": {
-        "psr-0": {
-            "Phpforce\\SoapClient": "src"
+    "authors": [
+        {
+            "name": "David de Boer",
+            "email": "david@ddeboer.nl",
+            "homepage": "http://ddeboer.nl"
+        },
+        {
+            "name": "Vaidas Bagdonas",
+            "email": "vaidas.bagdonas@comsave.com"
         }
-    }
+    ],
 }
