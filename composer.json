@@ -9,6 +9,11 @@
             "Phpforce\\SoapClient": "src"
         }
     },
+    "autoload-dev": {
+        "psr-0": {
+            "Phpforce\\SoapClient\\Tests": "tests"
+        }
+    },
     "require": {
         "php": "^7.2",
         "comsave/common": "^0.1",
