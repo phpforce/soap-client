@@ -15,7 +15,8 @@
         "psr/log": "~1.0.0"
     },
     "require-dev": {
-        "doctrine/common": "~2.3"
+        "phpunit/php-code-coverage": "^6.0",
+        "phpunit/phpunit": "^7.0"
     },
     "scripts": {
         "run-tests": "vendor/bin/phpunit -c phpunit.xml.dist --no-coverage",
