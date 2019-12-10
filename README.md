@@ -1,9 +1,8 @@
-[![Build Status](https://travis-ci.org/phpforce/soap-client.svg?branch=master)](https://travis-ci.org/phpforce/soap-client)  
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/phpforce/soap-client/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/phpforce/soap-client/?branch=master)
-
-
 PHPForce Soap Client: a PHP client for the Salesforce SOAP API
 ==============================================================
+
+![](https://img.shields.io/github/v/release/comsave/soap-client)
+![](https://img.shields.io/travis/comsave/soap-client)
 
 Introduction
 ------------
