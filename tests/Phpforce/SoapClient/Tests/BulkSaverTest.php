@@ -76,7 +76,8 @@ class BulkSaverTest extends \PHPUnit_Framework_TestCase
         $client = $this->getClient();
         $bulkSaver = new BulkSaver($client);
         $invalidRecord = new \stdClass();
-        $this->setExpectedException('\InvalidArgumentException', 'Only records with an Id can be deleted');
+        $this->expectException('\InvalidArgumentException');
+        $this->expectExceptionMessage('Only records with an Id can be deleted');
         $bulkSaver->delete($invalidRecord);
     }
 

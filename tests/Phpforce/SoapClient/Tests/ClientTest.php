@@ -70,7 +70,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
 
         $client = $this->getClient($soapClient);
 
-        $this->setExpectedException('\SoapFault');
+        $this->expectException('\SoapFault');
         $client->query('Select NonExistingField from Account');
     }
 
@@ -96,7 +96,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
             ->method('update')
             ->will($this->returnValue($result));
 
-        $this->setExpectedException('\Phpforce\SoapClient\Exception\SaveException');
+        $this->expectException('\Phpforce\SoapClient\Exception\SaveException');
         $this->getClient($soapClient)->update(array(
             (object) array(
                 'Id'    => 'invalid-id',
@@ -108,7 +108,8 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
     public function testMergeMustThrowException()
     {
         $soapClient= $this->getSoapClient(array('merge'));
-        $this->setExpectedException('\InvalidArgumentException', 'must be an instance of');
+        $this->expectException('\InvalidArgumentException');
+        $this->expectExceptionMessage('must be an instance of');
         $this->getClient($soapClient)->merge(array(new \stdClass), 'Account');
     }
 
@@ -192,7 +193,7 @@ No such column 'aId' on entity 'Account'. If you are attempting to use a custom 
 //            ->method('dispatch')
 //            ->with('php_force.soap_client.error');
 
-        $this->setExpectedException('\Phpforce\SoapClient\Exception\SaveException');
+        $this->expectException('\Phpforce\SoapClient\Exception\SaveException');
 
         $client->setEventDispatcher($dispatcher);
         $client->create(array($c), 'Contact');
