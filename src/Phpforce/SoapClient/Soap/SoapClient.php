@@ -46,6 +46,10 @@ class SoapClient extends \SoapClient
                     $properties = array_merge($properties, $this->types['sObject']);
                 }
 
+                if ($typeName == 'SingleEmailMessage' && array_key_exists('Email', $this->types)) {
+                    $properties = array_merge($properties, $this->types['Email']);
+                }
+
                 $this->types[$typeName] = $properties;
             }
         }
